@@ -37,29 +37,38 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
-      <Card className="w-full max-w-md animate-scale-in">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/5 to-primary/5 p-4 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-10 right-20 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-10 left-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '1.5s' }} />
+      </div>
+
+      <Card className="w-full max-w-md animate-bounce-in relative hover-lift bg-card/80 backdrop-blur-xl border-2">
         <CardHeader className="space-y-1 text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-2xl">P</span>
+          <div className="w-20 h-20 bg-gradient-to-br from-accent to-primary rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-accent/30 animate-pulse-glow">
+            <span className="text-white font-bold text-3xl">P</span>
           </div>
-          <CardTitle className="text-3xl font-bold">Create Account</CardTitle>
-          <CardDescription>Join ProjectGram to showcase your projects</CardDescription>
+          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-foreground via-accent to-primary bg-clip-text text-transparent">
+            Create Account
+          </CardTitle>
+          <CardDescription className="text-base">Join ProjectGram to showcase your projects</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+            <div className="space-y-2 animate-slide-up" style={{ animationDelay: '100ms' }}>
+              <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
               <Input
                 id="name"
                 placeholder="Alex Johnson"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
+                className="h-11 bg-background/50 border-2 focus:border-accent/50 transition-all"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+            <div className="space-y-2 animate-slide-up" style={{ animationDelay: '150ms' }}>
+              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -67,10 +76,11 @@ export default function Register() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="h-11 bg-background/50 border-2 focus:border-accent/50 transition-all"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+            <div className="space-y-2 animate-slide-up" style={{ animationDelay: '200ms' }}>
+              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -78,30 +88,40 @@ export default function Register() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="h-11 bg-background/50 border-2 focus:border-accent/50 transition-all"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="section">Section</Label>
+            <div className="space-y-2 animate-slide-up" style={{ animationDelay: '250ms' }}>
+              <Label htmlFor="section" className="text-sm font-medium">Section</Label>
               <Input
                 id="section"
                 placeholder="CS-A"
                 value={section}
                 onChange={(e) => setSection(e.target.value)}
                 required
+                className="h-11 bg-background/50 border-2 focus:border-accent/50 transition-all"
               />
             </div>
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90"
+              className="w-full h-11 bg-gradient-to-r from-accent via-accent to-primary hover:shadow-xl hover:shadow-accent/50 transition-all hover:scale-[1.02] animate-slide-up font-semibold text-base"
+              style={{ animationDelay: '300ms' }}
               disabled={loading}
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? (
+                <span className="flex items-center">
+                  <span className="animate-spin mr-2">⏳</span>
+                  Creating account...
+                </span>
+              ) : (
+                'Create Account'
+              )}
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm">
+          <div className="mt-6 text-center text-sm animate-fade-in" style={{ animationDelay: '400ms' }}>
             <span className="text-muted-foreground">Already have an account? </span>
-            <Link to="/login" className="text-primary font-medium hover:underline">
+            <Link to="/login" className="text-primary font-semibold hover:underline hover:text-accent transition-colors">
               Sign in
             </Link>
           </div>

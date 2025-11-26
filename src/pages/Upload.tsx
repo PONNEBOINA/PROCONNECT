@@ -73,29 +73,32 @@ export default function Upload() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-8">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 pb-20 md:pb-8">
       <Navbar />
       <main className="max-w-2xl mx-auto px-4 pt-20">
-        <Card>
+        <Card className="animate-slide-up hover-lift border-2 bg-gradient-to-br from-card via-card to-primary/5">
           <CardHeader>
-            <CardTitle>Upload New Project</CardTitle>
-            <CardDescription>Share your amazing work with the community</CardDescription>
+            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Upload New Project
+            </CardTitle>
+            <CardDescription className="text-base">Share your amazing work with the community</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Project Title</Label>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2 animate-slide-up" style={{ animationDelay: '50ms' }}>
+                <Label htmlFor="title" className="text-sm font-medium">Project Title</Label>
                 <Input
                   id="title"
                   placeholder="AI Task Manager"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
+                  className="h-11 bg-background/50 border-2 focus:border-primary/50 transition-all"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+              <div className="space-y-2 animate-slide-up" style={{ animationDelay: '100ms' }}>
+                <Label htmlFor="description" className="text-sm font-medium">Description</Label>
                 <Textarea
                   id="description"
                   placeholder="A smart task management app with AI-powered prioritization..."
@@ -103,11 +106,12 @@ export default function Upload() {
                   onChange={(e) => setDescription(e.target.value)}
                   rows={4}
                   required
+                  className="bg-background/50 border-2 focus:border-primary/50 transition-all resize-none"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="techStack">Tech Stack</Label>
+              <div className="space-y-2 animate-slide-up" style={{ animationDelay: '150ms' }}>
+                <Label htmlFor="techStack" className="text-sm font-medium">Tech Stack</Label>
                 <div className="flex space-x-2">
                   <Input
                     id="techStack"
@@ -115,29 +119,40 @@ export default function Upload() {
                     value={techInput}
                     onChange={(e) => setTechInput(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTech())}
+                    className="h-11 bg-background/50 border-2 focus:border-primary/50 transition-all"
                   />
-                  <Button type="button" onClick={handleAddTech} variant="outline">
+                  <Button 
+                    type="button" 
+                    onClick={handleAddTech} 
+                    variant="outline"
+                    className="hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all"
+                  >
                     Add
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {techStack.map((tech) => (
-                    <Badge key={tech} variant="secondary" className="pl-3 pr-2">
+                  {techStack.map((tech, index) => (
+                    <Badge 
+                      key={tech} 
+                      variant="secondary" 
+                      className="pl-3 pr-2 py-1.5 hover:bg-primary/20 hover:text-primary transition-all cursor-default animate-bounce-in group"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
                       {tech}
                       <button
                         type="button"
                         onClick={() => handleRemoveTech(tech)}
-                        className="ml-2"
+                        className="ml-2 hover:text-destructive transition-colors"
                       >
-                        <X size={14} />
+                        <X size={14} className="group-hover:scale-110 transition-transform" />
                       </button>
                     </Badge>
                   ))}
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="githubUrl">GitHub URL</Label>
+              <div className="space-y-2 animate-slide-up" style={{ animationDelay: '200ms' }}>
+                <Label htmlFor="githubUrl" className="text-sm font-medium">GitHub URL</Label>
                 <Input
                   id="githubUrl"
                   type="url"
@@ -145,11 +160,12 @@ export default function Upload() {
                   value={githubUrl}
                   onChange={(e) => setGithubUrl(e.target.value)}
                   required
+                  className="h-11 bg-background/50 border-2 focus:border-primary/50 transition-all"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="projectUrl">Live Project URL</Label>
+              <div className="space-y-2 animate-slide-up" style={{ animationDelay: '250ms' }}>
+                <Label htmlFor="projectUrl" className="text-sm font-medium">Live Project URL</Label>
                 <Input
                   id="projectUrl"
                   type="url"
@@ -157,27 +173,29 @@ export default function Upload() {
                   value={projectUrl}
                   onChange={(e) => setProjectUrl(e.target.value)}
                   required
+                  className="h-11 bg-background/50 border-2 focus:border-primary/50 transition-all"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="imageUrl">Project Image URL (optional)</Label>
+              <div className="space-y-2 animate-slide-up" style={{ animationDelay: '300ms' }}>
+                <Label htmlFor="imageUrl" className="text-sm font-medium">Project Image URL (optional)</Label>
                 <Input
                   id="imageUrl"
                   type="url"
                   placeholder="https://example.com/image.jpg"
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
+                  className="h-11 bg-background/50 border-2 focus:border-primary/50 transition-all"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="visibility">Visibility</Label>
+              <div className="space-y-2 animate-slide-up" style={{ animationDelay: '350ms' }}>
+                <Label htmlFor="visibility" className="text-sm font-medium">Visibility</Label>
                 <Select value={visibility} onValueChange={(v) => setVisibility(v as any)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-11 bg-background/50 border-2 focus:border-primary/50 transition-all">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="animate-scale-in">
                     <SelectItem value="public">Public (Everyone can see)</SelectItem>
                     <SelectItem value="friends">Friends Only</SelectItem>
                   </SelectContent>
@@ -186,10 +204,18 @@ export default function Upload() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:shadow-xl hover:shadow-primary/50 transition-all hover:scale-[1.02] animate-slide-up font-semibold text-base"
+                style={{ animationDelay: '400ms' }}
                 disabled={loading}
               >
-                {loading ? 'Uploading...' : 'Upload Project'}
+                {loading ? (
+                  <span className="flex items-center">
+                    <span className="animate-spin mr-2">⏳</span>
+                    Uploading...
+                  </span>
+                ) : (
+                  'Upload Project'
+                )}
               </Button>
             </form>
           </CardContent>
