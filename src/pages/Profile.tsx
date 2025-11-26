@@ -27,49 +27,81 @@ export default function Profile() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-8">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 pb-20 md:pb-8">
       <Navbar />
       <main className="max-w-4xl mx-auto px-4 pt-20">
-        <Card className="p-6 mb-6">
+        <Card className="p-6 mb-8 animate-slide-up hover-lift bg-gradient-to-br from-card via-card to-primary/5 border-2">
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
-            <Avatar className="h-24 w-24 ring-4 ring-primary/20">
-              <AvatarImage src={user.avatarUrl} />
-              <AvatarFallback className="text-2xl">{user.name.charAt(0)}</AvatarFallback>
-            </Avatar>
+            <div className="relative group">
+              <Avatar className="h-28 w-28 ring-4 ring-primary/30 transition-all group-hover:ring-8 group-hover:ring-primary/40 group-hover:scale-105 animate-bounce-in">
+                <AvatarImage src={user.avatarUrl} />
+                <AvatarFallback className="text-3xl font-bold bg-gradient-to-br from-primary to-accent text-white">
+                  {user.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-r from-green-400 to-green-500 rounded-full border-4 border-card flex items-center justify-center animate-pulse">
+                <div className="w-3 h-3 bg-white rounded-full" />
+              </div>
+            </div>
 
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-2xl font-bold mb-1">{user.name}</h1>
-              <p className="text-muted-foreground mb-3">{user.section}</p>
-              {user.bio && <p className="text-sm mb-4">{user.bio}</p>}
+              <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                {user.name}
+              </h1>
+              <p className="text-muted-foreground mb-3 font-medium">{user.section}</p>
+              {user.bio && (
+                <p className="text-sm mb-4 px-4 py-2 bg-muted/50 rounded-lg inline-block">
+                  {user.bio}
+                </p>
+              )}
 
-              <div className="flex justify-center md:justify-start space-x-8 mb-4">
-                <div>
-                  <p className="text-2xl font-bold">{userProjects.length}</p>
-                  <p className="text-xs text-muted-foreground">Projects</p>
+              <div className="flex justify-center md:justify-start space-x-8 mb-6">
+                <div className="text-center group cursor-default">
+                  <p className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent group-hover:scale-110 transition-transform inline-block">
+                    {userProjects.length}
+                  </p>
+                  <p className="text-xs text-muted-foreground font-medium">Projects</p>
                 </div>
                 <Link to="/friends">
-                  <div className="cursor-pointer hover:opacity-80">
-                    <p className="text-2xl font-bold">{friends.length}</p>
-                    <p className="text-xs text-muted-foreground">Friends</p>
+                  <div className="text-center group cursor-pointer">
+                    <p className="text-3xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent group-hover:scale-110 transition-transform inline-block">
+                      {friends.length}
+                    </p>
+                    <p className="text-xs text-muted-foreground font-medium group-hover:text-primary transition-colors">
+                      Friends
+                    </p>
                   </div>
                 </Link>
               </div>
 
               <div className="flex flex-wrap justify-center md:justify-start gap-2">
                 <Link to="/settings">
-                  <Button variant="outline" size="sm">
-                    <Settings size={16} className="mr-2" />
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all group"
+                  >
+                    <Settings size={16} className="mr-2 transition-transform group-hover:rotate-90" />
                     Edit Profile
                   </Button>
                 </Link>
                 <Link to="/friends">
-                  <Button variant="outline" size="sm">
-                    <Users size={16} className="mr-2" />
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all group"
+                  >
+                    <Users size={16} className="mr-2 transition-transform group-hover:scale-110" />
                     Friends
                   </Button>
                 </Link>
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  <LogOut size={16} className="mr-2" />
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleLogout}
+                  className="hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50 transition-all group"
+                >
+                  <LogOut size={16} className="mr-2 transition-transform group-hover:translate-x-0.5" />
                   Logout
                 </Button>
               </div>
@@ -77,27 +109,45 @@ export default function Profile() {
           </div>
         </Card>
 
-        <div className="mb-4">
-          <h2 className="text-xl font-bold">My Projects</h2>
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            My Projects
+          </h2>
+          {userProjects.length > 0 && (
+            <div className="text-sm text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
+              {userProjects.length} {userProjects.length === 1 ? 'project' : 'projects'}
+            </div>
+          )}
         </div>
 
-        <div className="grid gap-6">
+        <div className="grid gap-8">
           {userProjects.length === 0 ? (
-            <Card className="p-8 text-center">
-              <p className="text-muted-foreground mb-4">No projects yet</p>
+            <Card className="p-12 text-center animate-bounce-in bg-gradient-to-br from-card to-muted/30">
+              <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center animate-float">
+                <Settings className="text-primary" size={40} />
+              </div>
+              <h3 className="text-xl font-bold mb-2">No projects yet</h3>
+              <p className="text-muted-foreground mb-6">
+                Start showcasing your amazing work to the world!
+              </p>
               <Link to="/upload">
-                <Button className="bg-gradient-to-r from-primary to-accent hover:opacity-90">
+                <Button className="bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/50 transition-all hover:scale-105">
+                  <Settings size={16} className="mr-2" />
                   Upload Your First Project
                 </Button>
               </Link>
             </Card>
           ) : (
-            userProjects.map((project) => (
-              <ProjectCard
+            userProjects.map((project, index) => (
+              <div 
                 key={project.id}
-                project={project}
-                onDelete={deleteProject}
-              />
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <ProjectCard
+                  project={project}
+                  onDelete={deleteProject}
+                />
+              </div>
             ))
           )}
         </div>
