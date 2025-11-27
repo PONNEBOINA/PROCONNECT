@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Navbar } from '@/components/Layout/Navbar';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Settings, LogOut, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,12 +8,15 @@ import { useProjects } from '@/contexts/ProjectContext';
 import { useSocial } from '@/contexts/SocialContext';
 import { ProjectCard } from '@/components/Project/ProjectCard';
 import { useNavigate } from 'react-router-dom';
+import { AvatarUpload } from '@/components/Profile/AvatarUpload';
+import { useState } from 'react';
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateProfile } = useAuth();
   const { getUserProjects, deleteProject } = useProjects();
   const { getFriendsList } = useSocial();
   const navigate = useNavigate();
+  const [currentAvatar, setCurrentAvatar] = useState(user?.avatarUrl || '');
 
   const userProjects = user ? getUserProjects(user.id) : [];
   const friends = getFriendsList();
@@ -32,17 +34,16 @@ export default function Profile() {
       <main className="max-w-4xl mx-auto px-4 pt-20">
         <Card className="p-6 mb-8 animate-slide-up hover-lift bg-gradient-to-br from-card via-card to-primary/5 border-2">
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
-            <div className="relative group">
-              <Avatar className="h-28 w-28 ring-4 ring-primary/30 transition-all group-hover:ring-8 group-hover:ring-primary/40 group-hover:scale-105 animate-bounce-in">
-                <AvatarImage src={user.avatarUrl} />
-                <AvatarFallback className="text-3xl font-bold bg-gradient-to-br from-primary to-accent text-white">
-                  {user.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-r from-green-400 to-green-500 rounded-full border-4 border-card flex items-center justify-center animate-pulse">
-                <div className="w-3 h-3 bg-white rounded-full" />
-              </div>
-            </div>
+            <AvatarUpload 
+              userId={user.id}
+              avatarUrl={currentAvatar}
+              name={user.name}
+              onAvatarUpdate={(newAvatarUrl) => {
+                setCurrentAvatar(newAvatarUrl);
+                // Update the user context with the new avatar URL
+                updateProfile({ avatarUrl: newAvatarUrl });
+              }}
+            />
 
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
