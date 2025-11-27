@@ -1,23 +1,29 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, PlusSquare, Users, Bell, User } from 'lucide-react';
+import { Home, PlusSquare, Users, Bell, User, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSocial } from '@/contexts/SocialContext';
+import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export const Navbar = () => {
   const location = useLocation();
   const { user } = useAuth();
   const { unreadCount } = useSocial();
+  const { isAdmin } = useAdminCheck();
 
   const isActive = (path: string) => location.pathname === path;
 
-  const navItems = [
+  const baseNavItems = [
     { path: '/feed', icon: Home, label: 'Feed' },
     { path: '/upload', icon: PlusSquare, label: 'Upload' },
     { path: '/users', icon: Users, label: 'Users' },
     { path: '/notifications', icon: Bell, label: 'Notifications', badge: unreadCount },
     { path: '/profile', icon: User, label: 'Profile' },
   ];
+
+  const navItems = isAdmin 
+    ? [...baseNavItems.slice(0, 3), { path: '/admin', icon: Shield, label: 'Admin' }, ...baseNavItems.slice(3)]
+    : baseNavItems;
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-card/80 backdrop-blur-xl border-b border-border z-50 animate-slide-down">
