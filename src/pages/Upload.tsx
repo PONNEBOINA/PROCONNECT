@@ -7,8 +7,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { X, Sparkles, Loader2 } from 'lucide-react';
+import { X, Sparkles, Loader2, Share2 } from 'lucide-react';
 import { useProjects } from '@/contexts/ProjectContext';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -126,7 +132,41 @@ export default function Upload() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 pb-20 md:pb-8">
       <Navbar />
-      <main className="max-w-2xl mx-auto px-4 pt-20">
+      <main className="max-w-2xl mx-auto px-4 pt-20 space-y-6">
+        {/* Share Helper Section */}
+        <Card className="animate-slide-up hover-lift border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-card to-accent/5">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Share2 className="w-5 h-5 text-primary animate-pulse" />
+              <CardTitle className="text-xl">📤 Share Helper</CardTitle>
+            </div>
+            <CardDescription>
+              Generate a perfect description to share your project on Instagram, LinkedIn, WhatsApp and more.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full gap-2 h-11 border-2 border-primary/30 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/30"
+                    onClick={() => window.open('https://grand-cheesecake-8b9c44.netlify.app/', '_blank')}
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Generate Description to Share on Other Apps
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs text-center">
+                  <p>Generate AI-powered description for sharing on social media</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </CardContent>
+        </Card>
+
+        {/* Upload Form */}
         <Card className="animate-slide-up hover-lift border-2 bg-gradient-to-br from-card via-card to-primary/5">
           <CardHeader>
             <CardTitle className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
