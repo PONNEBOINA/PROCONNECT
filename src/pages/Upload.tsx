@@ -7,9 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-react';
+import { X, Sparkles, Loader2 } from 'lucide-react';
 import { useProjects } from '@/contexts/ProjectContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Select,
   SelectContent,
@@ -28,6 +29,8 @@ export default function Upload() {
   const [imageUrl, setImageUrl] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'friends'>('public');
   const [loading, setLoading] = useState(false);
+  const [generatingDescription, setGeneratingDescription] = useState(false);
+  const [suggestedDescription, setSuggestedDescription] = useState('');
 
   const { addProject } = useProjects();
   const { toast } = useToast();
@@ -42,6 +45,54 @@ export default function Upload() {
 
   const handleRemoveTech = (tech: string) => {
     setTechStack(techStack.filter(t => t !== tech));
+  };
+
+  const handleGenerateDescription = async () => {
+    if (!title.trim()) {
+      toast({
+        title: 'Title Required',
+        description: 'Please enter a project title first',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setGeneratingDescription(true);
+    setSuggestedDescription('');
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-description', {
+        body: { title, techStack }
+      });
+
+      if (error) throw error;
+
+      if (data?.suggestedDescription) {
+        setSuggestedDescription(data.suggestedDescription);
+        toast({
+          title: 'Success!',
+          description: 'AI-generated description is ready',
+        });
+      }
+    } catch (error: any) {
+      console.error('Description generation error:', error);
+      toast({
+        title: 'Generation Failed',
+        description: error.message || 'Failed to generate description. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setGeneratingDescription(false);
+    }
+  };
+
+  const handleUseSuggestion = () => {
+    setDescription(suggestedDescription);
+    setSuggestedDescription('');
+    toast({
+      title: 'Description Applied',
+      description: 'The AI-generated description has been added',
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,7 +149,57 @@ export default function Upload() {
               </div>
 
               <div className="space-y-2 animate-slide-up" style={{ animationDelay: '100ms' }}>
-                <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateDescription}
+                    disabled={generatingDescription || !title.trim()}
+                    className="group hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+                  >
+                    {generatingDescription ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4 group-hover:animate-pulse" />
+                        Generate with AI
+                      </>
+                    )}
+                  </Button>
+                </div>
+                
+                {suggestedDescription && (
+                  <Card className="p-4 bg-gradient-to-br from-primary/5 to-accent/5 border-2 border-primary/20 animate-bounce-in">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <Sparkles className="text-primary h-4 w-4" />
+                        <p className="text-sm font-medium text-primary">AI Suggestion</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSuggestedDescription('')}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                    <p className="text-sm text-foreground mb-3">{suggestedDescription}</p>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleUseSuggestion}
+                      className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/30"
+                    >
+                      Use This Description
+                    </Button>
+                  </Card>
+                )}
+
                 <Textarea
                   id="description"
                   placeholder="A smart task management app with AI-powered prioritization..."
