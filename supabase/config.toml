@@ -1,1 +1,10 @@
 project_id = "ddxfrdbkauusicjkdqal"
+
+[functions.generate-description]
+verify_jwt = true
+
+[functions.ai-recommend-project]
+verify_jwt = true
+
+[functions.select-project-winner]
+verify_jwt = true

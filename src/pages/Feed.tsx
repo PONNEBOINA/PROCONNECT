@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '@/components/Layout/Navbar';
 import { ProjectCard } from '@/components/Project/ProjectCard';
+import { ProjectOfWeekCard } from '@/components/ProjectOfWeek/ProjectOfWeekCard';
 import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { useProjects } from '@/contexts/ProjectContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -43,6 +44,11 @@ export default function Feed() {
           
           {/* Main Feed */}
           <div className="flex-1 max-w-2xl mx-auto lg:mx-0 w-full">
+            {/* Project of the Week Card */}
+            <div className="mb-6">
+              <ProjectOfWeekCard />
+            </div>
+
             <div className="mb-6">
               <div className="flex items-center space-x-2 mb-2">
                 <TrendingUp className="text-primary" size={24} />
