@@ -87,3 +87,23 @@ After deployment:
 - Render free tier has cold starts (~30 seconds)
 - Check Render logs for errors
 - Verify MongoDB connection string is correct
+
+## Critical: Render Environment Variables
+
+**You MUST set these on Render Dashboard:**
+
+1. Go to https://dashboard.render.com/
+2. Select your backend service
+3. Go to Environment tab
+4. Add these variables:
+
+```
+MONGODB_URI=mongodb+srv://vamshi:vamshi123@cluster0.dfdzmr6.mongodb.net/proconnect?retryWrites=true&w=majority&appName=Cluster0
+JWT_SECRET=proconnect_jwt_secret_key_2024_change_in_production
+NODE_ENV=production
+PORT=5000
+```
+
+**Note:** The MongoDB URI MUST include `/proconnect` database name!
+
+See `RENDER_ENV_SETUP.md` for detailed instructions.
