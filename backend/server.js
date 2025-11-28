@@ -24,8 +24,10 @@ const corsOptions = {
     'http://localhost:8080', 
     'http://localhost:8081', 
     'http://localhost:3000',
-    'https://myproconnect.netlify.app', // Add your Netlify URL here after deployment
-    /\.netlify\.app$/ // Allow all Netlify preview URLs
+    'https://project-connect-dun.vercel.app', // Your Vercel URL
+    'https://myproconnect.netlify.app',
+    /\.netlify\.app$/, // Allow all Netlify preview URLs
+    /\.vercel\.app$/ // Allow all Vercel preview URLs
   ],
   credentials: true,
   optionsSuccessStatus: 200
