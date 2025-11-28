@@ -19,18 +19,28 @@ const app = express();
 
 // CORS configuration to allow credentials
 const corsOptions = {
-  origin: [
-    'http://localhost:5173', 
-    'http://localhost:8080', 
-    'http://localhost:8081', 
-    'http://localhost:3000',
-    'https://project-connect-dun.vercel.app', // Your Vercel URL
-    'https://myproconnect.netlify.app',
-    /\.netlify\.app$/, // Allow all Netlify preview URLs
-    /\.vercel\.app$/ // Allow all Vercel preview URLs
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:8080',
+      'http://localhost:8081',
+      'http://localhost:3000'
+    ];
+    
+    // Allow all Vercel and Netlify domains
+    if (origin.includes('.vercel.app') || origin.includes('.netlify.app') || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 // Middleware
