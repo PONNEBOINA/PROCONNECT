@@ -37,6 +37,9 @@ export default function Upload() {
   const [loading, setLoading] = useState(false);
   const [generatingDescription, setGeneratingDescription] = useState(false);
   const [suggestedDescription, setSuggestedDescription] = useState('');
+  const [challengesFaced, setChallengesFaced] = useState('');
+  const [whatLearned, setWhatLearned] = useState('');
+  const [thingsExplored, setThingsExplored] = useState('');
 
   const { addProject } = useProjects();
   const { toast } = useToast();
@@ -113,7 +116,12 @@ export default function Upload() {
         githubUrl,
         projectUrl,
         imageUrl: imageUrl || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800',
-        visibility
+        visibility,
+        challenges: {
+          faced: challengesFaced,
+          learned: whatLearned,
+          explored: thingsExplored
+        }
       });
 
       toast({ title: 'Success!', description: 'Project uploaded successfully.' });
@@ -132,7 +140,7 @@ export default function Upload() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 pb-20 md:pb-8">
       <Navbar />
-      <main className="max-w-2xl mx-auto px-4 pt-20 space-y-6">
+      <main className="max-w-2xl mx-auto px-4 pt-24 space-y-6">
         {/* Share Helper Section */}
         <Card className="animate-slide-up hover-lift border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-card to-accent/5">
           <CardHeader>
@@ -152,10 +160,10 @@ export default function Upload() {
                     type="button"
                     variant="outline"
                     className="w-full gap-2 h-11 border-2 border-primary/30 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/30"
-                    onClick={() => window.open('https://grand-cheesecake-8b9c44.netlify.app/', '_blank')}
+                    onClick={() => window.location.href = '/share-helper'}
                   >
                     <Share2 className="w-4 h-4" />
-                    Generate Description to Share on Other Apps
+                    Generate Social Media Post
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="max-w-xs text-center">
@@ -341,6 +349,50 @@ export default function Upload() {
                     <SelectItem value="friends">Friends Only</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Challenges Section */}
+              <div className="space-y-4 pt-4 border-t animate-slide-up" style={{ animationDelay: '400ms' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="text-primary" size={20} />
+                  <h3 className="text-lg font-semibold">Project Challenges (Optional)</h3>
+                </div>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Share your journey! What challenges did you face and what did you learn?
+                </p>
+
+                <div className="space-y-2">
+                  <Label htmlFor="challengesFaced" className="text-sm font-medium">Challenges Faced</Label>
+                  <Textarea
+                    id="challengesFaced"
+                    placeholder="What challenges did you face while building this project?"
+                    value={challengesFaced}
+                    onChange={(e) => setChallengesFaced(e.target.value)}
+                    className="min-h-[80px] bg-background/50 border-2 focus:border-primary/50 transition-all"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="whatLearned" className="text-sm font-medium">What I Learned</Label>
+                  <Textarea
+                    id="whatLearned"
+                    placeholder="What did you learn from this project?"
+                    value={whatLearned}
+                    onChange={(e) => setWhatLearned(e.target.value)}
+                    className="min-h-[80px] bg-background/50 border-2 focus:border-primary/50 transition-all"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="thingsExplored" className="text-sm font-medium">New Things Explored</Label>
+                  <Textarea
+                    id="thingsExplored"
+                    placeholder="What new technologies or concepts did you explore?"
+                    value={thingsExplored}
+                    onChange={(e) => setThingsExplored(e.target.value)}
+                    className="min-h-[80px] bg-background/50 border-2 focus:border-primary/50 transition-all"
+                  />
+                </div>
               </div>
 
               <Button

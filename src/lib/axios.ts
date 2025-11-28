@@ -3,7 +3,6 @@ import axios from 'axios';
 // Create axios instance with default config
 const api = axios.create({
   baseURL: 'http://localhost:5000/api',
-  withCredentials: true, // Important for sending cookies
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',

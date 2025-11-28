@@ -1,41 +1,22 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar } from '@/components/Layout/Navbar';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
-import { UserPlus, Search, Check } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useSocial } from '@/contexts/SocialContext';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { FriendRequestButton } from '@/components/FriendRequestButton';
 
 export default function Users() {
   const [searchQuery, setSearchQuery] = useState('');
-  const { getAllUsers, sendFriendRequest, friendRequests } = useSocial();
-  const { user } = useAuth();
-  const { toast } = useToast();
+  const { getAllUsers } = useSocial();
 
   const allUsers = getAllUsers();
   const filteredUsers = allUsers.filter((u: any) =>
     u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     u.section.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const handleSendRequest = (userId: string, userName: string) => {
-    sendFriendRequest(userId);
-    toast({ title: 'Friend request sent!', description: `Sent request to ${userName}` });
-  };
-
-  const isPending = (userId: string) => {
-    return friendRequests.some(
-      r => r.receiverId === userId && r.senderId === user?.id && r.status === 'pending'
-    );
-  };
-
-  const isFriend = (userId: string) => {
-    return user?.friends.includes(userId);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 pb-20 md:pb-8">
@@ -83,35 +64,7 @@ export default function Users() {
                   </div>
                 </Link>
 
-                {isFriend(userItem.id) ? (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    disabled
-                    className="bg-primary/10 border-primary/30 text-primary"
-                  >
-                    <Check size={16} className="mr-2" />
-                    Friends
-                  </Button>
-                ) : isPending(userItem.id) ? (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    disabled
-                    className="bg-muted/50"
-                  >
-                    Pending
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    onClick={() => handleSendRequest(userItem.id, userItem.name)}
-                    className="bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/50 transition-all group"
-                  >
-                    <UserPlus size={16} className="mr-2 transition-transform group-hover:scale-110" />
-                    Add Friend
-                  </Button>
-                )}
+                <FriendRequestButton userId={userItem.id} size="sm" />
               </div>
             </Card>
           ))}

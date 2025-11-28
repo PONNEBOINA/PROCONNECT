@@ -1,73 +1,141 @@
-# Welcome to your Lovable project
+# Project Connect
 
-## Project info
+A social platform for students to share and discover projects.
 
-**URL**: https://lovable.dev/projects/cf8155c5-2c4f-49bb-9f63-b108b5ef48c7
+## Technologies Used
 
-## How can I edit this code?
+### Frontend
+- React 18 with TypeScript
+- Vite
+- Tailwind CSS
+- shadcn-ui components
+- React Router
+- Axios for API calls
 
-There are several ways of editing your application.
+### Backend
+- Node.js with Express
+- MongoDB with Mongoose
+- JWT authentication
+- bcryptjs for password hashing
 
-**Use Lovable**
+## Setup Instructions
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/cf8155c5-2c4f-49bb-9f63-b108b5ef48c7) and start prompting.
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
+- MongoDB (Atlas or local installation)
 
-Changes made via Lovable will be committed automatically to this repo.
+### 1. Backend Setup
 
-**Use your preferred IDE**
+```bash
+# Navigate to backend directory
+cd backend
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+# Install dependencies
+npm install
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+# Configure environment variables
+# Edit backend/.env and add your MongoDB connection string
+# MONGODB_URI=your_mongodb_connection_string_here
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the backend server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The backend will run on `http://localhost:5000`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+See `backend/README.md` for detailed backend documentation.
 
-**Use GitHub Codespaces**
+### 2. Frontend Setup
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+# Navigate to project root (if in backend folder)
+cd ..
 
-## What technologies are used for this project?
+# Install dependencies
+npm install
 
-This project is built with:
+# Start the development server
+npm run dev
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The frontend will run on `http://localhost:8080`
 
-## How can I deploy this project?
+### 3. MongoDB Setup
 
-Simply open [Lovable](https://lovable.dev/projects/cf8155c5-2c4f-49bb-9f63-b108b5ef48c7) and click on Share -> Publish.
+You need a MongoDB database. Choose one option:
 
-## Can I connect a custom domain to my Lovable project?
+**Option A: MongoDB Atlas (Cloud - Recommended)**
+1. Go to https://www.mongodb.com/cloud/atlas
+2. Create a free account and cluster
+3. Click "Connect" -> "Connect your application"
+4. Copy the connection string
+5. Add it to `backend/.env` as `MONGODB_URI`
 
-Yes, you can!
+**Option B: Local MongoDB**
+1. Install MongoDB locally
+2. Use connection string: `mongodb://localhost:27017/project-connect`
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Environment Variables
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Frontend (.env)
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+### Backend (backend/.env)
+```env
+PORT=5000
+MONGODB_URI=YOUR_MONGODB_CONNECTION_STRING_HERE
+JWT_SECRET=your_jwt_secret_key_change_this_in_production
+NODE_ENV=development
+```
+
+## Features
+
+- User registration and authentication
+- User profiles with sections
+- Project creation and sharing
+- Public and friends-only project visibility
+- Friend requests and connections
+- Real-time notifications
+- Discover students by section
+- Project feed
+
+## Project Structure
+
+```
+project-connect/
+├── backend/              # Node.js/Express backend
+│   ├── models/          # MongoDB models
+│   ├── routes/          # API routes
+│   ├── middleware/      # Auth middleware
+│   └── server.js        # Entry point
+├── src/                 # React frontend
+│   ├── components/      # UI components
+│   ├── contexts/        # React contexts
+│   ├── services/        # API services
+│   └── pages/           # Page components
+└── public/              # Static assets
+```
+
+## Running in Production
+
+### Backend
+```bash
+cd backend
+npm start
+```
+
+### Frontend
+```bash
+npm run build
+npm run preview
+```
+
+## Notes
+
+- All dummy data has been removed
+- The app now uses real data from MongoDB
+- Users must register to see content
+- No pre-populated users or projects

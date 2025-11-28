@@ -17,6 +17,8 @@ import UserProfile from "./pages/UserProfile";
 import Settings from "./pages/Settings";
 import Friends from "./pages/Friends";
 import AdminDashboard from "./pages/AdminDashboard";
+import TechnologyDetail from "./pages/TechnologyDetail";
+import Trending from "./pages/Trending";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,8 +29,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
-  return !isAuthenticated ? <>{children}</> : <Navigate to="/feed" />;
+  const { isAuthenticated, user } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <>{children}</>;
+  }
+  
+  // Redirect admin users to admin dashboard, regular users to feed
+  return <Navigate to={user?.role === 'admin' ? '/admin' : '/feed'} />;
 };
 
 const App = () => (
@@ -53,6 +61,8 @@ const App = () => (
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
                 <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                <Route path="/trending" element={<ProtectedRoute><Trending /></ProtectedRoute>} />
+                <Route path="/tech/:techName" element={<ProtectedRoute><TechnologyDetail /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

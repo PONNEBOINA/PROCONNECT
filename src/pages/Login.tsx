@@ -20,9 +20,16 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await login(email, password);
-      toast({ title: 'Welcome back!', description: 'Successfully logged in.' });
-      navigate('/feed');
+      const userData = await login(email, password);
+      
+      // Check if user is admin and redirect accordingly
+      if (userData?.role === 'admin') {
+        toast({ title: 'Welcome back, Admin!', description: 'Redirecting to dashboard...' });
+        navigate('/admin');
+      } else {
+        toast({ title: 'Welcome back!', description: 'Successfully logged in.' });
+        navigate('/feed');
+      }
     } catch (error) {
       toast({
         title: 'Login failed',
@@ -50,7 +57,7 @@ export default function Login() {
           <CardTitle className="text-4xl font-bold bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
             Welcome Back
           </CardTitle>
-          <CardDescription className="text-base">Sign in to continue to ProjectGram</CardDescription>
+          <CardDescription className="text-base">Sign in to continue to ProConnect</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

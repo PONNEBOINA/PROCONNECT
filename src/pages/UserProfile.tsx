@@ -1,17 +1,53 @@
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Navbar } from '@/components/Layout/Navbar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { useProjects } from '@/contexts/ProjectContext';
 import { ProjectCard } from '@/components/Project/ProjectCard';
+import { FriendRequestButton } from '@/components/FriendRequestButton';
+import { usersAPI, projectsAPI } from '@/services/api';
 
 export default function UserProfile() {
   const { userId } = useParams<{ userId: string }>();
-  const { getUserProjects } = useProjects();
+  const [viewedUser, setViewedUser] = useState<any>(null);
+  const [userProjects, setUserProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const allUsers = JSON.parse(localStorage.getItem('projectgram_all_users') || '[]');
-  const viewedUser = allUsers.find((u: any) => u.id === userId);
-  const userProjects = userId ? getUserProjects(userId) : [];
+  useEffect(() => {
+    if (userId) {
+      loadUserData();
+    }
+  }, [userId]);
+
+  const loadUserData = async () => {
+    try {
+      setLoading(true);
+      const [user, projects] = await Promise.all([
+        usersAPI.getUserProfile(userId!),
+        projectsAPI.getUserProjects(userId!)
+      ]);
+      setViewedUser(user);
+      setUserProjects(projects);
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background pb-20 md:pb-8">
+        <Navbar />
+        <main className="max-w-4xl mx-auto px-4 pt-20">
+          <Card className="p-8 text-center">
+            <p className="text-muted-foreground">Loading...</p>
+          </Card>
+        </main>
+      </div>
+    );
+  }
 
   if (!viewedUser) {
     return (
@@ -38,8 +74,15 @@ export default function UserProfile() {
             </Avatar>
 
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-2xl font-bold mb-1">{viewedUser.name}</h1>
-              <p className="text-muted-foreground mb-3">{viewedUser.section}</p>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3">
+                <div>
+                  <h1 className="text-2xl font-bold mb-1">{viewedUser.name}</h1>
+                  <p className="text-muted-foreground">{viewedUser.section}</p>
+                </div>
+                <div className="mt-3 md:mt-0">
+                  <FriendRequestButton userId={viewedUser.id} />
+                </div>
+              </div>
               {viewedUser.bio && <p className="text-sm mb-4">{viewedUser.bio}</p>}
 
               <div className="flex justify-center md:justify-start space-x-8">
@@ -48,7 +91,7 @@ export default function UserProfile() {
                   <p className="text-xs text-muted-foreground">Projects</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{viewedUser.friends?.length || 0}</p>
+                  <p className="text-2xl font-bold">{viewedUser.friendsCount || 0}</p>
                   <p className="text-xs text-muted-foreground">Friends</p>
                 </div>
               </div>

@@ -12,6 +12,7 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [section, setSection] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const { toast } = useToast();
@@ -22,13 +23,20 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await register(name, email, password, section);
-      toast({ title: 'Account created!', description: 'Welcome to ProjectGram.' });
-      navigate('/feed');
-    } catch (error) {
+      await register(name, email, password, section, isAdmin ? 'admin' : undefined);
+      
+      // Redirect based on role
+      if (isAdmin) {
+        toast({ title: 'Admin account created!', description: 'Redirecting to dashboard...' });
+        navigate('/admin');
+      } else {
+        toast({ title: 'Account created!', description: 'Welcome to ProConnect.' });
+        navigate('/feed');
+      }
+    } catch (error: any) {
       toast({
         title: 'Registration failed',
-        description: 'User already exists or invalid data',
+        description: error.message || 'User already exists or invalid data',
         variant: 'destructive'
       });
     } finally {
@@ -52,7 +60,7 @@ export default function Register() {
           <CardTitle className="text-4xl font-bold bg-gradient-to-r from-foreground via-accent to-primary bg-clip-text text-transparent">
             Create Account
           </CardTitle>
-          <CardDescription className="text-base">Join ProjectGram to showcase your projects</CardDescription>
+          <CardDescription className="text-base">Join ProConnect to showcase your projects</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -101,6 +109,19 @@ export default function Register() {
                 required
                 className="h-11 bg-background/50 border-2 focus:border-accent/50 transition-all"
               />
+            </div>
+            <div className="flex items-center space-x-2 animate-slide-up" style={{ animationDelay: '275ms' }}>
+              <input
+                type="checkbox"
+                id="admin"
+                checked={isAdmin}
+                onChange={(e) => setIsAdmin(e.target.checked)}
+                className="w-4 h-4 text-primary bg-background border-2 rounded focus:ring-2 focus:ring-primary cursor-pointer"
+              />
+              <Label htmlFor="admin" className="text-sm font-medium cursor-pointer flex items-center gap-2">
+                Register as Admin
+                <span className="text-xs text-muted-foreground">(Only one admin allowed)</span>
+              </Label>
             </div>
             <Button
               type="submit"

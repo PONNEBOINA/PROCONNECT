@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { authAPI, usersAPI } from '../services/api';
 
 export interface User {
   id: string;
@@ -7,116 +8,102 @@ export interface User {
   avatarUrl: string;
   bio: string;
   section: string;
+  role?: string;
   friends: string[];
+  friendsCount?: number;
 }
 
 interface AuthContextType {
   user: User | null;
   users: User[];
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, section: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  register: (name: string, email: string, password: string, section: string, role?: string) => Promise<void>;
   logout: () => void;
-  updateProfile: (updates: Partial<User>) => void;
+  updateProfile: (updates: Partial<User>) => Promise<void>;
+  reloadCurrentUser: () => Promise<void>;
   isAuthenticated: boolean;
+  loadUsers: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users data
-const MOCK_USERS: User[] = [
-  {
-    id: '1',
-    name: 'Alex Johnson',
-    email: 'alex@example.com',
-    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
-    bio: 'Full-stack developer | React enthusiast',
-    section: 'CS-A',
-    friends: ['2', '3']
-  },
-  {
-    id: '2',
-    name: 'Sarah Chen',
-    email: 'sarah@example.com',
-    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-    bio: 'UI/UX Designer | Creative coder',
-    section: 'CS-B',
-    friends: ['1']
-  },
-  {
-    id: '3',
-    name: 'Mike Rodriguez',
-    email: 'mike@example.com',
-    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike',
-    bio: 'AI/ML student | Python lover',
-    section: 'CS-A',
-    friends: ['1']
-  },
-];
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [allUsers, setAllUsers] = useState<User[]>(MOCK_USERS);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('projectgram_user');
-    const storedUsers = localStorage.getItem('projectgram_all_users');
+    const storedUser = localStorage.getItem('proconnect_user');
+    const token = localStorage.getItem('token');
     
-    if (storedUser) {
+    if (storedUser && token) {
       setUser(JSON.parse(storedUser));
-    }
-    if (storedUsers) {
-      setAllUsers(JSON.parse(storedUsers));
+      loadUsers();
     }
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const foundUser = allUsers.find(u => u.email === email);
-    if (foundUser) {
-      setUser(foundUser);
-      localStorage.setItem('projectgram_user', JSON.stringify(foundUser));
-    } else {
-      throw new Error('Invalid credentials');
+  const loadUsers = async () => {
+    try {
+      const users = await usersAPI.getAllUsers();
+      setAllUsers(users);
+    } catch (error) {
+      console.error('Failed to load users:', error);
     }
   };
 
-  const register = async (name: string, email: string, password: string, section: string) => {
-    const existingUser = allUsers.find(u => u.email === email);
-    if (existingUser) {
-      throw new Error('User already exists');
+  const login = async (email: string, password: string) => {
+    try {
+      const { token, user: userData } = await authAPI.login(email, password);
+      localStorage.setItem('token', token);
+      localStorage.setItem('proconnect_user', JSON.stringify(userData));
+      setUser(userData);
+      await loadUsers();
+      return userData; // Return user data for redirect logic
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Login failed');
     }
+  };
 
-    const newUser: User = {
-      id: Date.now().toString(),
-      name,
-      email,
-      avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
-      bio: '',
-      section,
-      friends: []
-    };
-
-    const updatedUsers = [...allUsers, newUser];
-    setAllUsers(updatedUsers);
-    setUser(newUser);
-    localStorage.setItem('projectgram_user', JSON.stringify(newUser));
-    localStorage.setItem('projectgram_all_users', JSON.stringify(updatedUsers));
+  const register = async (name: string, email: string, password: string, section: string, role?: string) => {
+    try {
+      const { token, user: userData } = await authAPI.register(name, email, password, section, role);
+      localStorage.setItem('token', token);
+      localStorage.setItem('proconnect_user', JSON.stringify(userData));
+      setUser(userData);
+      await loadUsers();
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Registration failed');
+    }
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('projectgram_user');
+    setAllUsers([]);
+    localStorage.removeItem('proconnect_user');
+    localStorage.removeItem('token');
   };
 
-  const updateProfile = (updates: Partial<User>) => {
+  const updateProfile = async (updates: Partial<User>) => {
     if (!user) return;
     
-    const updatedUser = { ...user, ...updates };
-    setUser(updatedUser);
-    localStorage.setItem('projectgram_user', JSON.stringify(updatedUser));
+    try {
+      const updatedUser = await usersAPI.updateProfile(updates);
+      setUser(updatedUser);
+      localStorage.setItem('proconnect_user', JSON.stringify(updatedUser));
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Profile update failed');
+    }
+  };
+
+  const reloadCurrentUser = async () => {
+    if (!user) return;
     
-    const updatedUsers = allUsers.map(u => u.id === user.id ? updatedUser : u);
-    setAllUsers(updatedUsers);
-    localStorage.setItem('projectgram_all_users', JSON.stringify(updatedUsers));
+    try {
+      const updatedUser = await usersAPI.getUserProfile(user.id);
+      setUser(updatedUser);
+      localStorage.setItem('proconnect_user', JSON.stringify(updatedUser));
+    } catch (error: any) {
+      console.error('Failed to reload user:', error);
+    }
   };
 
   return (
@@ -127,7 +114,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       register,
       logout,
       updateProfile,
-      isAuthenticated: !!user
+      reloadCurrentUser,
+      isAuthenticated: !!user,
+      loadUsers
     }}>
       {children}
     </AuthContext.Provider>

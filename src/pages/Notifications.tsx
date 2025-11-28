@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Navbar } from '@/components/Layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -5,13 +6,37 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useSocial } from '@/contexts/SocialContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { UserPlus, Check, Bell } from 'lucide-react';
+import { UserPlus, Check, Bell, X } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Notifications() {
-  const { notifications, markNotificationRead, markAllNotificationsRead } = useSocial();
-  const { user } = useAuth();
+  const { notifications, friendRequests, markNotificationRead, markAllNotificationsRead, respondToFriendRequest } = useSocial();
+  const { user, users } = useAuth();
+  const { toast } = useToast();
+  const [processingRequest, setProcessingRequest] = useState<string | null>(null);
 
-  const userNotifications = notifications.filter(n => n.userId === user?.id)
+  // Helper to get user info from notification metadata
+  const getUserFromNotification = (notification: any) => {
+    if (notification.type === 'FRIEND_REQUEST' && notification.metadata?.senderId) {
+      return users.find(u => u.id === notification.metadata.senderId);
+    }
+    if (notification.type === 'FRIEND_ACCEPTED' && notification.metadata?.userId) {
+      return users.find(u => u.id === notification.metadata.userId);
+    }
+    return null;
+  };
+
+  // Filter out friend request notifications that have been responded to
+  const userNotifications = notifications
+    .filter(n => n.userId === user?.id)
+    .filter(n => {
+      // If it's a friend request notification, check if it still has a pending request
+      if (n.type === 'FRIEND_REQUEST' && n.metadata?.requestId) {
+        const request = friendRequests.find(r => r.id === n.metadata.requestId);
+        return request && request.status === 'pending';
+      }
+      return true;
+    })
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const unreadCount = userNotifications.filter(n => !n.isRead).length;
@@ -41,10 +66,29 @@ export default function Notifications() {
     return `${days}d ago`;
   };
 
+  const handleRespondToRequest = async (requestId: string, accept: boolean, senderName: string) => {
+    setProcessingRequest(requestId);
+    try {
+      await respondToFriendRequest(requestId, accept);
+      toast({
+        title: accept ? 'Friend request accepted!' : 'Friend request rejected',
+        description: accept ? `You are now friends with ${senderName}` : `Request from ${senderName} rejected`,
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to respond to friend request',
+        variant: 'destructive',
+      });
+    } finally {
+      setProcessingRequest(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 pb-20 md:pb-8">
       <Navbar />
-      <main className="max-w-2xl mx-auto px-4 pt-20">
+      <main className="max-w-2xl mx-auto px-4 pt-24">
         <div className="flex items-center justify-between mb-8 animate-slide-down">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
@@ -84,7 +128,10 @@ export default function Notifications() {
               </p>
             </Card>
           ) : (
-            userNotifications.map((notification, index) => (
+            userNotifications.map((notification, index) => {
+              const notificationUser = getUserFromNotification(notification);
+              
+              return (
               <Card
                 key={notification.id}
                 className={`
@@ -100,11 +147,20 @@ export default function Notifications() {
               >
                 <div className="flex items-start space-x-3">
                   <div className="flex-shrink-0 mt-1 transform transition-transform group-hover:scale-110">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      !notification.isRead ? 'bg-gradient-to-br from-primary/20 to-accent/20' : 'bg-muted'
-                    }`}>
-                      {getIcon(notification.type)}
-                    </div>
+                    {notificationUser ? (
+                      <Avatar className="h-10 w-10 ring-2 ring-primary/20">
+                        <AvatarImage src={notificationUser.avatarUrl} alt={notificationUser.name} />
+                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20">
+                          {notificationUser.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        !notification.isRead ? 'bg-gradient-to-br from-primary/20 to-accent/20' : 'bg-muted'
+                      }`}>
+                        {getIcon(notification.type)}
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm ${!notification.isRead ? 'font-semibold' : ''}`}>
@@ -113,6 +169,39 @@ export default function Notifications() {
                     <p className="text-xs text-muted-foreground mt-1 flex items-center">
                       <span>{formatDate(notification.createdAt)}</span>
                     </p>
+                    
+                    {/* Show Confirm/Reject buttons for friend requests */}
+                    {notification.type === 'FRIEND_REQUEST' && notification.metadata?.requestId && (
+                      <div className="flex gap-2 mt-3">
+                        <Button
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const request = friendRequests.find(r => r.id === notification.metadata.requestId);
+                            handleRespondToRequest(notification.metadata.requestId, true, request?.senderName || 'User');
+                          }}
+                          disabled={processingRequest === notification.metadata.requestId}
+                          className="bg-gradient-to-r from-primary to-accent hover:shadow-lg"
+                        >
+                          <Check size={14} className="mr-1" />
+                          Confirm
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const request = friendRequests.find(r => r.id === notification.metadata.requestId);
+                            handleRespondToRequest(notification.metadata.requestId, false, request?.senderName || 'User');
+                          }}
+                          disabled={processingRequest === notification.metadata.requestId}
+                          className="hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
+                        >
+                          <X size={14} className="mr-1" />
+                          Reject
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   {!notification.isRead && (
                     <Badge 
@@ -124,7 +213,8 @@ export default function Notifications() {
                   )}
                 </div>
               </Card>
-            ))
+            );
+            })
           )}
         </div>
       </main>
