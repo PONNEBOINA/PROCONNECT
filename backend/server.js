@@ -30,8 +30,11 @@ const corsOptions = {
       'http://localhost:3000'
     ];
     
-    // Allow all Vercel and Netlify domains
-    if (origin.includes('.vercel.app') || origin.includes('.netlify.app') || allowedOrigins.includes(origin)) {
+    // Allow all Vercel, Netlify, and Render domains
+    if (origin.includes('.vercel.app') || 
+        origin.includes('.netlify.app') || 
+        origin.includes('.onrender.com') || 
+        allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
