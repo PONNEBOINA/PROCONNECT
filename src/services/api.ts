@@ -7,6 +7,8 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
+  timeout: 30000, // 30 second timeout for Render free tier cold starts
 });
 
 // Add token to requests
