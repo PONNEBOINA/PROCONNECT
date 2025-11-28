@@ -19,7 +19,14 @@ const app = express();
 
 // CORS configuration to allow credentials
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:3000'],
+  origin: [
+    'http://localhost:5173', 
+    'http://localhost:8080', 
+    'http://localhost:8081', 
+    'http://localhost:3000',
+    'https://myproconnect.netlify.app', // Add your Netlify URL here after deployment
+    /\.netlify\.app$/ // Allow all Netlify preview URLs
+  ],
   credentials: true,
   optionsSuccessStatus: 200
 };
