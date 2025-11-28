@@ -55,8 +55,23 @@ app.use('/uploads', express.static('uploads'));
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB connected successfully'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+  .then(() => {
+    console.log('MongoDB connected successfully');
+    console.log('Database:', mongoose.connection.name);
+  })
+  .catch((err) => {
+    console.error('MongoDB connection error:', err);
+    console.error('Connection string (masked):', process.env.MONGODB_URI?.replace(/\/\/.*:.*@/, '//***:***@'));
+  });
+
+// Monitor MongoDB connection
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB runtime error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('MongoDB disconnected');
+});
 
 // Routes
 app.use('/api/auth', authRoutes);

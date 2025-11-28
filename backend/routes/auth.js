@@ -92,32 +92,46 @@ router.post('/login', [
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    console.error('Login validation errors:', errors.array());
+    return res.status(400).json({ 
+      message: 'Validation failed',
+      errors: errors.array() 
+    });
   }
 
   try {
     const { email, password } = req.body;
+    console.log('Login attempt for email:', email);
 
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('User not found:', email);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
+    console.log('User found:', user.email, 'ID:', user._id);
+
     // Check if user is suspended
     if (user.isSuspended) {
+      console.log('User is suspended:', email);
       return res.status(403).json({ message: 'Your account is suspended. Contact admin.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log('Password mismatch for:', email);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
+
+    console.log('Password matched, generating token...');
 
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
+
+    console.log('Token generated successfully');
 
     res.json({
       token,
@@ -135,7 +149,17 @@ router.post('/login', [
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Error stack:', error.stack);
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      code: error.code
+    });
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: error.message,
+      details: error.toString()
+    });
   }
 });
 
