@@ -74,6 +74,7 @@ export default function Notifications() {
         title: accept ? 'Friend request accepted!' : 'Friend request rejected',
         description: accept ? `You are now friends with ${senderName}` : `Request from ${senderName} rejected`,
       });
+      // The notification will be automatically removed from the list after reload
     } catch (error: any) {
       toast({
         title: 'Error',

@@ -9,24 +9,53 @@ import { Check, X } from 'lucide-react';
 import { useSocial } from '@/contexts/SocialContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from 'react';
 
 export default function Friends() {
   const { friendRequests, respondToFriendRequest, getFriendsList } = useSocial();
   const { user } = useAuth();
   const { toast } = useToast();
+  const [friends, setFriends] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const pendingRequests = friendRequests.filter(
     r => r.receiverId === user?.id && r.status === 'pending'
   );
 
-  const friends = getFriendsList();
+  useEffect(() => {
+    loadFriends();
+  }, [user]);
 
-  const handleRespond = (requestId: string, accept: boolean, senderName: string) => {
-    respondToFriendRequest(requestId, accept);
-    toast({
-      title: accept ? 'Friend request accepted!' : 'Friend request rejected',
-      description: accept ? `You are now friends with ${senderName}` : undefined
-    });
+  const loadFriends = async () => {
+    setLoading(true);
+    try {
+      const friendsList = await getFriendsList();
+      setFriends(friendsList);
+    } catch (error) {
+      console.error('Failed to load friends:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRespond = async (requestId: string, accept: boolean, senderName: string) => {
+    try {
+      await respondToFriendRequest(requestId, accept);
+      toast({
+        title: accept ? 'Friend request accepted!' : 'Friend request rejected',
+        description: accept ? `You are now friends with ${senderName}` : undefined
+      });
+      // Reload friends list if accepted
+      if (accept) {
+        await loadFriends();
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to respond to request',
+        variant: 'destructive'
+      });
+    }
   };
 
   return (
@@ -51,7 +80,11 @@ export default function Friends() {
           </TabsList>
 
           <TabsContent value="friends" className="space-y-3 mt-4">
-            {friends.length === 0 ? (
+            {loading ? (
+              <Card className="p-8 text-center">
+                <p className="text-muted-foreground">Loading friends...</p>
+              </Card>
+            ) : friends.length === 0 ? (
               <Card className="p-8 text-center">
                 <p className="text-muted-foreground">No friends yet</p>
               </Card>

@@ -184,6 +184,13 @@ router.post('/friend-request/:id/respond', authenticateToken, async (req, res) =
     friendRequest.status = accept ? 'accepted' : 'rejected';
     await friendRequest.save();
 
+    // Delete the friend request notification for the receiver
+    await Notification.deleteMany({
+      user: req.user.userId,
+      type: 'FRIEND_REQUEST',
+      'metadata.requestId': friendRequest._id
+    });
+
     if (accept) {
       await User.findByIdAndUpdate(req.user.userId, {
         $addToSet: { friends: friendRequest.sender }
@@ -202,6 +209,13 @@ router.post('/friend-request/:id/respond', authenticateToken, async (req, res) =
       });
 
       await notification.save();
+    } else {
+      // If rejected, also delete the notification for the receiver
+      await Notification.deleteMany({
+        user: req.user.userId,
+        type: 'FRIEND_REQUEST',
+        'metadata.requestId': friendRequest._id
+      });
     }
 
     res.json({ message: accept ? 'Friend request accepted' : 'Friend request rejected' });
