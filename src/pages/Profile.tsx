@@ -84,7 +84,7 @@ export default function Profile() {
       <main className="max-w-4xl mx-auto px-4 pt-24">
         <Card className="p-6 mb-8 animate-slide-up hover-lift bg-gradient-to-br from-card via-card to-primary/5 border-2">
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
-            <div className="relative">
+            <div className="relative group/avatar">
               <AvatarUpload 
                 userId={user.id}
                 avatarUrl={currentAvatar}
@@ -97,10 +97,19 @@ export default function Profile() {
               />
               {currentAvatar && (
                 <button
-                  onClick={() => setIsAvatarPreviewOpen(true)}
-                  className="absolute inset-0 rounded-full cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsAvatarPreviewOpen(true);
+                  }}
+                  className="absolute -bottom-2 -right-2 bg-primary text-white p-2 rounded-full shadow-lg hover:bg-primary/90 transition-all hover:scale-110 z-10"
                   aria-label="View profile picture"
-                />
+                  title="View full size"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
               )}
             </div>
 
