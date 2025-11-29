@@ -80,6 +80,10 @@ export const projectsAPI = {
     const response = await api.post(`/projects/${projectId}/comment`, { text });
     return response.data;
   },
+  addReply: async (projectId: string, commentId: string, text: string) => {
+    const response = await api.post(`/projects/${projectId}/comment/${commentId}/reply`, { text });
+    return response.data;
+  },
   getComments: async (projectId: string) => {
     const response = await api.get(`/projects/${projectId}/comments`);
     return response.data;

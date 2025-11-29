@@ -314,11 +314,62 @@ router.post('/:id/comment', authenticateToken, async (req, res) => {
   }
 });
 
+// Add reply to comment
+router.post('/:id/comment/:commentId/reply', authenticateToken, async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    if (!text || text.trim() === '') {
+      return res.status(400).json({ message: 'Reply text is required' });
+    }
+
+    const project = await Project.findById(req.params.id);
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    const comment = project.comments.id(req.params.commentId);
+
+    if (!comment) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    const reply = {
+      user: req.user.userId,
+      text: text.trim(),
+      createdAt: new Date()
+    };
+
+    comment.replies.push(reply);
+    await project.save();
+
+    // Populate user info for the new reply
+    await project.populate('comments.replies.user', 'name avatarUrl');
+
+    const newReply = comment.replies[comment.replies.length - 1];
+
+    res.status(201).json({
+      id: newReply._id,
+      user: {
+        id: newReply.user._id,
+        name: newReply.user.name,
+        avatarUrl: newReply.user.avatarUrl
+      },
+      text: newReply.text,
+      createdAt: newReply.createdAt
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // Get comments for a project
 router.get('/:id/comments', authenticateToken, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id)
-      .populate('comments.user', 'name avatarUrl');
+      .populate('comments.user', 'name avatarUrl')
+      .populate('comments.replies.user', 'name avatarUrl');
 
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
@@ -332,6 +383,16 @@ router.get('/:id/comments', authenticateToken, async (req, res) => {
         avatarUrl: comment.user.avatarUrl
       },
       text: comment.text,
+      replies: comment.replies.map(reply => ({
+        id: reply._id,
+        user: {
+          id: reply.user._id,
+          name: reply.user.name,
+          avatarUrl: reply.user.avatarUrl
+        },
+        text: reply.text,
+        createdAt: reply.createdAt
+      })),
       createdAt: comment.createdAt
     }));
 
