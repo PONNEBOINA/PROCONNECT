@@ -53,6 +53,8 @@ export function AvatarUpload({ userId, avatarUrl, name, onAvatarUpdate }: Avatar
       setIsUploading(true);
       const token = localStorage.getItem('token');
 
+      console.log('Uploading image...');
+
       // Upload the image using our configured axios instance
       const uploadRes = await api.post('/upload', formData, {
         headers: {
@@ -60,8 +62,12 @@ export function AvatarUpload({ userId, avatarUrl, name, onAvatarUpdate }: Avatar
         },
       });
 
+      console.log('Upload response:', uploadRes.data);
+
       // Update user profile with the new avatar URL
       const imageUrl = uploadRes.data.data.fullUrl;
+      console.log('Updating profile with avatar URL:', imageUrl);
+      
       await updateProfile({ avatarUrl: imageUrl });
       onAvatarUpdate(imageUrl);
 
@@ -69,11 +75,12 @@ export function AvatarUpload({ userId, avatarUrl, name, onAvatarUpdate }: Avatar
         title: 'Success',
         description: 'Profile picture updated!',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Upload error:', error);
+      console.error('Error response:', error.response?.data);
       toast({
         title: 'Upload failed',
-        description: error.response?.data?.message || 'Failed to upload image',
+        description: error.response?.data?.message || error.message || 'Failed to upload image',
         variant: 'destructive',
       });
     } finally {

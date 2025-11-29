@@ -57,12 +57,26 @@ router.get('/:id', authenticateToken, async (req, res) => {
 router.put('/profile', authenticateToken, async (req, res) => {
   try {
     const { name, bio, section, avatarUrl } = req.body;
+    console.log('Updating profile for user:', req.user.userId);
+    console.log('Update data:', { name, bio, section, avatarUrl });
+
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (bio !== undefined) updateData.bio = bio;
+    if (section !== undefined) updateData.section = section;
+    if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
 
     const user = await User.findByIdAndUpdate(
       req.user.userId,
-      { name, bio, section, avatarUrl },
+      updateData,
       { new: true, runValidators: true }
     ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    console.log('Profile updated successfully:', user.avatarUrl);
 
     res.json({
       id: user._id,
@@ -75,6 +89,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
       friendsCount: user.friendsCount
     });
   } catch (error) {
+    console.error('Profile update error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
