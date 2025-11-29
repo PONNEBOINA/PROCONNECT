@@ -97,8 +97,9 @@ export function AvatarUpload({ userId, avatarUrl, name, onAvatarUpdate }: Avatar
         className="relative cursor-pointer"
         onClick={handleAvatarClick}
         aria-label="Change profile picture"
+        title="Click to change profile picture"
       >
-        <Avatar className="h-28 w-28 ring-4 ring-primary/30">
+        <Avatar className="h-28 w-28 ring-4 ring-primary/30 transition-all group-hover:ring-primary/50">
           <AvatarImage 
             src={avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`} 
             alt={`${name}'s avatar`} 
@@ -108,7 +109,7 @@ export function AvatarUpload({ userId, avatarUrl, name, onAvatarUpdate }: Avatar
           </AvatarFallback>
         </Avatar>
 
-        <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+        <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer">
           {isUploading ? (
             <Loader2 className="h-8 w-8 text-white animate-spin" />
           ) : (

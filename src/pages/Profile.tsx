@@ -10,6 +10,7 @@ import { useSocial } from '@/contexts/SocialContext';
 import { ProjectCard } from '@/components/Project/ProjectCard';
 import { useNavigate } from 'react-router-dom';
 import { AvatarUpload } from '@/components/Profile/AvatarUpload';
+import { AvatarPreviewModal } from '@/components/Profile/AvatarPreviewModal';
 import { useState, useEffect } from 'react';
 import { certificatesAPI } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
@@ -24,6 +25,7 @@ export default function Profile() {
   const [currentAvatar, setCurrentAvatar] = useState(user?.avatarUrl || '');
   const [certificates, setCertificates] = useState<any[]>([]);
   const [loadingCertificates, setLoadingCertificates] = useState(false);
+  const [isAvatarPreviewOpen, setIsAvatarPreviewOpen] = useState(false);
 
   const userProjects = user ? getUserProjects(user.id) : [];
   const friendsCount = user?.friendsCount || 0;
@@ -82,16 +84,25 @@ export default function Profile() {
       <main className="max-w-4xl mx-auto px-4 pt-24">
         <Card className="p-6 mb-8 animate-slide-up hover-lift bg-gradient-to-br from-card via-card to-primary/5 border-2">
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
-            <AvatarUpload 
-              userId={user.id}
-              avatarUrl={currentAvatar}
-              name={user.name}
-              onAvatarUpdate={(newAvatarUrl) => {
-                setCurrentAvatar(newAvatarUrl);
-                // Update the user context with the new avatar URL
-                updateProfile({ avatarUrl: newAvatarUrl });
-              }}
-            />
+            <div className="relative">
+              <AvatarUpload 
+                userId={user.id}
+                avatarUrl={currentAvatar}
+                name={user.name}
+                onAvatarUpdate={(newAvatarUrl) => {
+                  setCurrentAvatar(newAvatarUrl);
+                  // Update the user context with the new avatar URL
+                  updateProfile({ avatarUrl: newAvatarUrl });
+                }}
+              />
+              {currentAvatar && (
+                <button
+                  onClick={() => setIsAvatarPreviewOpen(true)}
+                  className="absolute inset-0 rounded-full cursor-pointer"
+                  aria-label="View profile picture"
+                />
+              )}
+            </div>
 
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
@@ -271,6 +282,14 @@ export default function Profile() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Avatar Preview Modal */}
+      <AvatarPreviewModal
+        isOpen={isAvatarPreviewOpen}
+        onClose={() => setIsAvatarPreviewOpen(false)}
+        avatarUrl={currentAvatar}
+        userName={user.name}
+      />
     </div>
   );
 }

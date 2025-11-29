@@ -55,15 +55,68 @@ export function TechnologyChatbot({ isOpen, onClose, technology: initialTechnolo
   };
 
   const generateAnswer = async (question: string, questionId?: number) => {
-    // Simulate AI response with technology-specific answers
-    const answers: Record<string, string> = {
-      [`What is ${technology}?`]: `${technology} is a powerful technology used by developers worldwide. It provides a robust set of features for building modern applications with efficiency and scalability.`,
-      [`Why should I learn ${technology}?`]: `Learning ${technology} opens up numerous opportunities in web development. It's widely adopted by companies, has a strong community, and offers excellent career prospects.`,
-      [`What can I build with ${technology}?`]: `With ${technology}, you can build web applications, mobile apps, APIs, real-time applications, and much more. The possibilities are endless!`,
-      [`How difficult is ${technology} to learn?`]: `${technology} has a moderate learning curve. With dedication and practice, most developers can become proficient within a few months. The community support is excellent!`,
+    // Generate context-aware answers based on the technology and question
+    const techInfo: Record<string, any> = {
+      'React': {
+        what: 'React is a JavaScript library for building user interfaces, developed by Facebook. It uses a component-based architecture and virtual DOM for efficient rendering.',
+        why: 'React is in high demand with 40%+ of developers using it. It offers excellent job opportunities, has a massive ecosystem, and is backed by Meta. Companies like Netflix, Airbnb, and Instagram use React.',
+        build: 'You can build single-page applications (SPAs), progressive web apps (PWAs), mobile apps with React Native, dashboards, e-commerce sites, social media platforms, and real-time applications.',
+        difficulty: 'React has a moderate learning curve. If you know JavaScript, you can start building in 2-3 weeks. Mastering advanced concepts like hooks, context, and performance optimization takes 2-3 months of practice.'
+      },
+      'Node.js': {
+        what: 'Node.js is a JavaScript runtime built on Chrome\'s V8 engine. It allows you to run JavaScript on the server-side, enabling full-stack JavaScript development.',
+        why: 'Node.js enables JavaScript developers to work on both frontend and backend. It\'s fast, scalable, and used by Netflix, LinkedIn, Uber, and PayPal. The npm ecosystem has over 1 million packages.',
+        build: 'You can build REST APIs, GraphQL servers, real-time chat applications, streaming services, microservices, IoT applications, command-line tools, and backend services.',
+        difficulty: 'If you know JavaScript, Node.js basics can be learned in 1-2 weeks. Building production-ready applications with Express, databases, and authentication takes 1-2 months of practice.'
+      },
+      'Python': {
+        what: 'Python is a high-level, interpreted programming language known for its simplicity and readability. It\'s versatile and used in web development, data science, AI, and automation.',
+        why: 'Python is the #1 language for beginners and professionals. It\'s used in AI/ML, data science, web development, and automation. Companies like Google, NASA, and Spotify use Python extensively.',
+        build: 'You can build web applications with Django/Flask, data analysis tools, machine learning models, automation scripts, web scrapers, APIs, desktop applications, and scientific computing tools.',
+        difficulty: 'Python is one of the easiest languages to learn. Basics can be learned in 1-2 weeks. Becoming proficient in frameworks and libraries takes 2-3 months of consistent practice.'
+      },
+      'MongoDB': {
+        what: 'MongoDB is a NoSQL document database that stores data in flexible, JSON-like documents. It\'s designed for scalability and developer productivity.',
+        why: 'MongoDB is perfect for modern applications with flexible schemas. It scales horizontally, handles big data well, and integrates seamlessly with Node.js. Used by eBay, Adobe, and Forbes.',
+        build: 'You can build content management systems, real-time analytics platforms, mobile app backends, IoT data storage, e-commerce platforms, and social networks.',
+        difficulty: 'MongoDB basics can be learned in 1 week if you know databases. Understanding indexing, aggregation, and replication takes 2-3 weeks of practice.'
+      },
+      'TypeScript': {
+        what: 'TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. It adds static typing, interfaces, and advanced features to JavaScript.',
+        why: 'TypeScript catches errors before runtime, improves code quality, and enhances IDE support. It\'s used by Microsoft, Google, Airbnb, and Slack. 78% of developers prefer it over JavaScript.',
+        build: 'You can build large-scale applications, enterprise software, React/Angular/Vue apps, Node.js backends, and any JavaScript project with better type safety.',
+        difficulty: 'If you know JavaScript, TypeScript basics take 1-2 weeks. Understanding advanced types, generics, and decorators takes 1-2 months of practice.'
+      }
     };
 
-    return answers[question] || `${technology} is an excellent technology for modern development. It offers great features, strong community support, and is used by many successful companies worldwide.`;
+    const tech = techInfo[technology] || {
+      what: `${technology} is a modern technology used in software development. It provides tools and features for building efficient applications.`,
+      why: `${technology} is widely adopted in the industry with strong community support. Learning it opens up career opportunities and helps you build better applications.`,
+      build: `With ${technology}, you can build various types of applications including web apps, mobile apps, and backend services depending on its use case.`,
+      difficulty: `${technology} has a learning curve that varies based on your background. With consistent practice and good resources, most developers can become proficient in 2-3 months.`
+    };
+
+    // Match question type and return appropriate answer
+    const lowerQuestion = question.toLowerCase();
+    
+    if (lowerQuestion.includes('what is') || lowerQuestion.includes('what\'s')) {
+      return tech.what;
+    } else if (lowerQuestion.includes('why') || lowerQuestion.includes('should i learn')) {
+      return tech.why;
+    } else if (lowerQuestion.includes('build') || lowerQuestion.includes('create') || lowerQuestion.includes('make')) {
+      return tech.build;
+    } else if (lowerQuestion.includes('difficult') || lowerQuestion.includes('hard') || lowerQuestion.includes('easy') || lowerQuestion.includes('learn')) {
+      return tech.difficulty;
+    } else if (lowerQuestion.includes('salary') || lowerQuestion.includes('job') || lowerQuestion.includes('career')) {
+      return `${technology} developers are in high demand. Entry-level positions typically start at $60-80k, mid-level at $90-120k, and senior positions can reach $150k+ depending on location and experience.`;
+    } else if (lowerQuestion.includes('resource') || lowerQuestion.includes('tutorial') || lowerQuestion.includes('course')) {
+      return `Great resources for learning ${technology} include official documentation, freeCodeCamp, Udemy courses, YouTube tutorials, and hands-on projects. Start with the official docs and build small projects to practice.`;
+    } else if (lowerQuestion.includes('alternative') || lowerQuestion.includes('vs') || lowerQuestion.includes('compare')) {
+      return `${technology} has its strengths and use cases. The best choice depends on your project requirements, team expertise, and specific needs. Research and compare based on performance, ecosystem, and community support.`;
+    } else {
+      // Generic answer for custom questions
+      return `${technology} is a valuable technology to learn. ${tech.why} It's used by many companies and has a strong community. I recommend starting with the official documentation and building small projects to gain hands-on experience.`;
+    }
   };
 
   const handleGenerateAnswer = async (questionId: number) => {
