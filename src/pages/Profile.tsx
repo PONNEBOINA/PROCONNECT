@@ -23,6 +23,13 @@ export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentAvatar, setCurrentAvatar] = useState(user?.avatarUrl || '');
+
+  // Update avatar when user changes
+  useEffect(() => {
+    if (user?.avatarUrl) {
+      setCurrentAvatar(user.avatarUrl);
+    }
+  }, [user?.avatarUrl]);
   const [certificates, setCertificates] = useState<any[]>([]);
   const [loadingCertificates, setLoadingCertificates] = useState(false);
   const [isAvatarPreviewOpen, setIsAvatarPreviewOpen] = useState(false);
