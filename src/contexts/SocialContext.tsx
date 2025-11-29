@@ -166,7 +166,17 @@ export const SocialProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const unreadCount = user ? notifications.filter(n => n.userId === user.id && !n.isRead).length : 0;
+  // Calculate unread count, excluding friend request notifications that have been responded to
+  const unreadCount = user ? notifications
+    .filter(n => n.userId === user.id && !n.isRead)
+    .filter(n => {
+      // If it's a friend request notification, check if it still has a pending request
+      if (n.type === 'FRIEND_REQUEST' && n.metadata?.requestId) {
+        const request = friendRequests.find(r => r.id === n.metadata.requestId);
+        return request && request.status === 'pending';
+      }
+      return true;
+    }).length : 0;
 
   const getAllUsers = () => {
     return users;
