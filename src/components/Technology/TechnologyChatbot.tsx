@@ -55,7 +55,35 @@ export function TechnologyChatbot({ isOpen, onClose, technology: initialTechnolo
   };
 
   const generateAnswer = async (question: string, questionId?: number) => {
-    // Generate context-aware answers based on the technology and question
+    try {
+      // Call backend API to get AI-generated response
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/technologies/ask`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          technology,
+          question
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
+
+      const data = await response.json();
+      return data.answer;
+    } catch (error) {
+      console.error('AI response error:', error);
+      // Fallback to predefined answers if API fails
+      return generateFallbackAnswer(question);
+    }
+  };
+
+  const generateFallbackAnswer = (question: string) => {
+    // Fallback answers if AI API fails
     const techInfo: Record<string, any> = {
       'React': {
         what: 'React is a JavaScript library for building user interfaces, developed by Facebook. It uses a component-based architecture and virtual DOM for efficient rendering.',

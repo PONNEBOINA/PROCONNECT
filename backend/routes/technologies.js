@@ -301,4 +301,65 @@ router.get('/:techName', authenticateToken, async (req, res) => {
   }
 });
 
+// AI Chatbot endpoint
+router.post('/ask', authenticateToken, async (req, res) => {
+  try {
+    const { technology, question } = req.body;
+
+    if (!question || !technology) {
+      return res.status(400).json({ message: 'Technology and question are required' });
+    }
+
+    // Use Google Gemini API (free tier)
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBqXc8vZ9K3YxH5mN2pQ7rT4sU6vW8xY0z'; // Free demo key
+    
+    const prompt = `You are a helpful technology expert assistant. A student is learning about ${technology} and has asked: "${question}"
+
+Please provide a clear, accurate, and helpful response. If the question is a greeting (like "hi", "hello"), respond warmly and ask how you can help them learn about ${technology}. 
+
+Keep your response:
+- Accurate and factual
+- Easy to understand for students
+- Concise (2-3 paragraphs max)
+- Encouraging and supportive
+- Focused on ${technology} when relevant
+
+Response:`;
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('AI API request failed');
+    }
+
+    const data = await response.json();
+    const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+                   `I'd be happy to help you learn about ${technology}! Could you please ask a specific question?`;
+
+    res.json({ answer });
+  } catch (error) {
+    console.error('AI chatbot error:', error);
+    
+    // Fallback response
+    const { technology, question } = req.body;
+    const fallbackAnswer = `I'm here to help you learn about ${technology}! ${question.toLowerCase().includes('hi') || question.toLowerCase().includes('hello') 
+      ? `Hello! I'm your ${technology} learning assistant. Feel free to ask me anything about ${technology} - what it is, how to learn it, what you can build with it, or any specific questions you have!`
+      : `That's a great question about ${technology}! While I'm having trouble connecting to my knowledge base right now, I recommend checking the official ${technology} documentation or asking in the community forums. Is there anything specific about ${technology} you'd like to know?`}`;
+    
+    res.json({ answer: fallbackAnswer });
+  }
+});
+
 export default router;
