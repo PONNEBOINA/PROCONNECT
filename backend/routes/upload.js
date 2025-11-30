@@ -16,17 +16,8 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const userId = req.user?.userId || 'user';
-    cb(null, `${userId}-${uniqueSuffix}${path.extname(file.originalname)}`);
-  }
-});
+// Configure multer to store in memory (for base64 conversion)
+const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
   // Accept images only
@@ -64,20 +55,18 @@ router.post('/', authenticateToken, (req, res, next) => {
         return res.status(400).json({ message: 'No file uploaded' });
       }
 
-      console.log('File uploaded successfully:', req.file.filename);
+      console.log('File uploaded successfully, converting to base64...');
 
-      // Construct the full URL for the uploaded file
-      const protocol = req.protocol;
-      const host = req.get('host');
-      const fileUrl = `/uploads/${req.file.filename}`;
-      const fullUrl = `${protocol}://${host}${fileUrl}`;
+      // Convert image to base64 data URL (persists forever in database)
+      const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+
+      console.log('Image converted to base64, size:', base64Image.length);
 
       res.status(200).json({
         message: 'File uploaded successfully',
         data: {
-          filename: req.file.filename,
-          path: fileUrl,
-          fullUrl: fullUrl,
+          filename: req.file.originalname,
+          fullUrl: base64Image, // Base64 data URL that persists in database
           size: req.file.size,
           mimetype: req.file.mimetype
         }
