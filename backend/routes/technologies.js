@@ -2,6 +2,9 @@ import express from 'express';
 import Project from '../models/Project.js';
 import { authenticateToken } from '../middleware/auth.js';
 
+// Use global fetch (Node 18+) or import node-fetch as fallback
+const fetchAPI = globalThis.fetch || (await import('node-fetch')).default;
+
 const router = express.Router();
 
 // Technology metadata for auto-generation
@@ -326,7 +329,9 @@ Keep your response:
 
 Response:`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+    console.log('Making AI request for:', technology, question);
+    
+    const response = await fetchAPI(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -340,11 +345,17 @@ Response:`;
       })
     });
 
+    console.log('AI API response status:', response.status);
+
     if (!response.ok) {
-      throw new Error('AI API request failed');
+      const errorText = await response.text();
+      console.error('AI API error:', errorText);
+      throw new Error(`AI API request failed: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('AI response received:', data.candidates?.[0]?.content?.parts?.[0]?.text?.substring(0, 100));
+    
     const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || 
                    `I'd be happy to help you learn about ${technology}! Could you please ask a specific question?`;
 
