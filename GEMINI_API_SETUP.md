@@ -16,7 +16,7 @@ The chatbot now uses Google's Gemini AI to provide intelligent, context-aware re
 3. Go to Environment tab
 4. Add a new variable:
    - **Key:** `GEMINI_API_KEY`
-   - **Value:** Your API key from step 3 above
+   - **Value:** `AIzaSyAMbCdOug60WTJY6kwpPht-qdYHbqJ3LCY`
 5. Save and redeploy
 
 ## Features
