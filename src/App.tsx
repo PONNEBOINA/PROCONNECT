@@ -19,6 +19,7 @@ import Friends from "./pages/Friends";
 import AdminDashboard from "./pages/AdminDashboard";
 import TechnologyDetail from "./pages/TechnologyDetail";
 import Trending from "./pages/Trending";
+import ShareHelper from "./pages/ShareHelper";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,6 +64,7 @@ const App = () => (
                 <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                 <Route path="/trending" element={<ProtectedRoute><Trending /></ProtectedRoute>} />
                 <Route path="/tech/:techName" element={<ProtectedRoute><TechnologyDetail /></ProtectedRoute>} />
+                <Route path="/share-helper" element={<ProtectedRoute><ShareHelper /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
