@@ -1,9 +1,7 @@
 import express from 'express';
 import Project from '../models/Project.js';
 import { authenticateToken } from '../middleware/auth.js';
-
-// Use global fetch (Node 18+) or import node-fetch as fallback
-const fetchAPI = globalThis.fetch || (await import('node-fetch')).default;
+import fetch from 'node-fetch';
 
 const router = express.Router();
 
@@ -330,8 +328,9 @@ Keep your response:
 Response:`;
 
     console.log('Making AI request for:', technology, question);
+    console.log('Using API key:', GEMINI_API_KEY ? 'Key present' : 'Key missing');
     
-    const response = await fetchAPI(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
