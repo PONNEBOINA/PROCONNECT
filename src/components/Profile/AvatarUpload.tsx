@@ -90,6 +90,9 @@ export function AvatarUpload({ userId, avatarUrl, name, onAvatarUpdate }: Avatar
     });
   };
 
+  const MAX_FILE_SIZE_MB = 3;
+  const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024; // 3MB in bytes
+
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -97,8 +100,18 @@ export function AvatarUpload({ userId, avatarUrl, name, onAvatarUpdate }: Avatar
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
-        title: 'Invalid file',
+        title: 'Invalid file type',
         description: 'Please upload a valid image (JPEG, PNG, GIF, or WebP)',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast({
+        title: 'File too large',
+        description: `Maximum file size is ${MAX_FILE_SIZE_MB}MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`,
         variant: 'destructive',
       });
       return;

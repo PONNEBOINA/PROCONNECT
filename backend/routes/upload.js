@@ -28,11 +28,14 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+const MAX_FILE_SIZE_MB = 3;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024; // 3MB in bytes
+
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 200 * 1024 // 200KB max file size (ensures it fits in MongoDB with base64 encoding)
+    fileSize: MAX_FILE_SIZE_BYTES // 3MB max file size
   }
 });
 
@@ -42,7 +45,7 @@ router.post('/', authenticateToken, (req, res, next) => {
     if (err instanceof multer.MulterError) {
       console.error('Multer error:', err);
       if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).json({ message: 'File is too large. Maximum size is 5MB.' });
+        return res.status(400).json({ message: `File is too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.` });
       }
       return res.status(400).json({ message: err.message });
     } else if (err) {
