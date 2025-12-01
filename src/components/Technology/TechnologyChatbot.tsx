@@ -57,7 +57,9 @@ export function TechnologyChatbot({ isOpen, onClose, technology: initialTechnolo
   const generateAnswer = async (question: string, questionId?: number) => {
     try {
       // Call backend API to get AI-generated response
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/technologies/ask`, {
+      const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+      console.log('Calling AI API:', `${API_URL}/api/technologies/ask`);
+      const response = await fetch(`${API_URL}/api/technologies/ask`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,13 +72,17 @@ export function TechnologyChatbot({ isOpen, onClose, technology: initialTechnolo
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get AI response');
+        const errorText = await response.text();
+        console.error('AI API error response:', response.status, errorText);
+        throw new Error(`Failed to get AI response: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('AI response received:', data.answer?.substring(0, 100));
       return data.answer;
     } catch (error) {
       console.error('AI response error:', error);
+      console.error('Error details:', error);
       // Fallback to predefined answers if API fails
       return generateFallbackAnswer(question);
     }
