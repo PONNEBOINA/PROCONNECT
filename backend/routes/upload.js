@@ -32,7 +32,7 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 500 * 1024 // 500KB max file size (smaller to fit in MongoDB)
+    fileSize: 200 * 1024 // 200KB max file size (ensures it fits in MongoDB with base64 encoding)
   }
 });
 

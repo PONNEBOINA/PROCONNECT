@@ -22,6 +22,57 @@ export function AvatarUpload({ userId, avatarUrl, name, onAvatarUpdate }: Avatar
     fileInputRef.current?.click();
   };
 
+  const compressImage = (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Resize to max 400x400
+          let width = img.width;
+          let height = img.height;
+          const maxSize = 400;
+          
+          if (width > height) {
+            if (width > maxSize) {
+              height = (height * maxSize) / width;
+              width = maxSize;
+            }
+          } else {
+            if (height > maxSize) {
+              width = (width * maxSize) / height;
+              height = maxSize;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Convert to blob with compression
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                reject(new Error('Failed to compress image'));
+              }
+            },
+            'image/jpeg',
+            0.7 // 70% quality
+          );
+        };
+        img.onerror = () => reject(new Error('Failed to load image'));
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+    });
+  };
+
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -36,24 +87,18 @@ export function AvatarUpload({ userId, avatarUrl, name, onAvatarUpdate }: Avatar
       return;
     }
 
-    // Validate size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: 'File too large',
-        description: 'Maximum size allowed is 5MB',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('image', file);
-
     try {
       setIsUploading(true);
-      const token = localStorage.getItem('token');
+      
+      // Compress image in browser
+      console.log('Original file size:', file.size);
+      const compressedBlob = await compressImage(file);
+      console.log('Compressed size:', compressedBlob.size);
+      
+      const formData = new FormData();
+      formData.append('image', compressedBlob, 'avatar.jpg');
 
-      console.log('Uploading image...');
+      console.log('Uploading compressed image...');
 
       // Upload the image using our configured axios instance
       const uploadRes = await api.post('/upload', formData, {
@@ -83,7 +128,6 @@ export function AvatarUpload({ userId, avatarUrl, name, onAvatarUpdate }: Avatar
         description: error.response?.data?.message || error.message || 'Failed to upload image',
         variant: 'destructive',
       });
-    } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
