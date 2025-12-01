@@ -311,8 +311,8 @@ router.post('/ask', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Technology and question are required' });
     }
 
-    // Use Google Gemini API (free tier)
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBqXc8vZ9K3YxH5mN2pQ7rT4sU6vW8xY0z'; // Free demo key
+    // Use Google Gemini API (using the working key from POST-GENERATOR)
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBCaktLqFRrMIK6kLtP2HvHQ8gjMtUUYVY';
     
     const prompt = `You are a helpful technology expert assistant. A student is learning about ${technology} and has asked: "${question}"
 
@@ -330,7 +330,7 @@ Response:`;
     console.log('Making AI request for:', technology, question);
     console.log('Using API key:', GEMINI_API_KEY ? 'Key present' : 'Key missing');
     
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
