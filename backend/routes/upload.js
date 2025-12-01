@@ -1,5 +1,6 @@
 import express from 'express';
 import multer from 'multer';
+import sharp from 'sharp';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { authenticateToken } from '../middleware/auth.js';
@@ -55,12 +56,19 @@ router.post('/', authenticateToken, (req, res, next) => {
         return res.status(400).json({ message: 'No file uploaded' });
       }
 
-      console.log('File uploaded successfully, converting to base64...');
+      console.log('File uploaded successfully, compressing and converting to base64...');
 
-      // Convert image to base64 data URL (persists forever in database)
-      const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+      // Compress image to max 400x400 and convert to JPEG for smaller size
+      const compressedBuffer = await sharp(req.file.buffer)
+        .resize(400, 400, { fit: 'cover' })
+        .jpeg({ quality: 85 })
+        .toBuffer();
 
-      console.log('Image converted to base64, size:', base64Image.length);
+      // Convert compressed image to base64 data URL (persists forever in database)
+      const base64Image = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+
+      console.log('Image compressed and converted to base64');
+      console.log('Original size:', req.file.size, 'Compressed size:', base64Image.length);
 
       res.status(200).json({
         message: 'File uploaded successfully',
