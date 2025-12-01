@@ -330,7 +330,7 @@ Response:`;
     console.log('Making AI request for:', technology, question);
     console.log('Using API key:', GEMINI_API_KEY ? 'Key present' : 'Key missing');
     
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
