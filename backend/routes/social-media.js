@@ -7,7 +7,7 @@ const router = express.Router();
 // POST /api/social-media/generate - Generate social media post
 router.post('/generate', authenticateToken, async (req, res) => {
   try {
-    const { projectTitle, projectDescription, techStack, platform } = req.body;
+    const { projectTitle, projectDescription, projectUrl, techStack, platform } = req.body;
 
     if (!projectTitle || !projectDescription || !platform) {
       return res.status(400).json({ message: 'Project title, description, and platform are required' });
@@ -25,6 +25,7 @@ router.post('/generate', authenticateToken, async (req, res) => {
 
 Project Description: ${projectDescription}
 ${techStack && techStack.length > 0 ? `Tech Stack: ${techStack.join(', ')}` : ''}
+${projectUrl ? `Project Link: ${projectUrl}` : ''}
 
 Requirements:
 - Start with an attention-grabbing hook
@@ -33,6 +34,7 @@ Requirements:
 - Include relevant hashtags at the end (5-10 hashtags)
 - Make it visually appealing with line breaks
 - Highlight the key features or benefits
+${projectUrl ? `- Include the project link: ${projectUrl}` : '- Add a placeholder for the link if needed'}
 - End with a call-to-action
 
 Generate the Instagram post:`,
@@ -41,12 +43,14 @@ Generate the Instagram post:`,
 
 Project Description: ${projectDescription}
 ${techStack && techStack.length > 0 ? `Tech Stack: ${techStack.join(', ')}` : ''}
+${projectUrl ? `Project Link: ${projectUrl}` : ''}
 
 Requirements:
 - Professional and informative tone
 - Start with a compelling opening
 - Explain the problem it solves
 - Highlight technical achievements
+${projectUrl ? `- Include the project link: ${projectUrl}` : '- Add a placeholder for the link if needed'}
 - Include 3-5 relevant hashtags
 - End with a call-to-action or question to engage the audience
 - Use line breaks for readability
@@ -57,12 +61,13 @@ Generate the LinkedIn post:`,
 
 Project Description: ${projectDescription}
 ${techStack && techStack.length > 0 ? `Tech Stack: ${techStack.join(', ')}` : ''}
+${projectUrl ? `Project Link: ${projectUrl}` : ''}
 
 Requirements:
 - Keep it brief and to the point
 - Use emojis to make it friendly
 - Include key highlights
-- Add a link placeholder [PROJECT_LINK]
+${projectUrl ? `- Include the project link: ${projectUrl}` : '- Add a link placeholder [PROJECT_LINK]'}
 - Make it easy to forward
 - Conversational tone
 
@@ -109,19 +114,25 @@ Generate the WhatsApp message:`
     console.error('Social media generation error:', error);
     
     // Fallback response
-    const { projectTitle, platform } = req.body;
+    const { projectTitle, projectUrl, platform } = req.body;
+    const linkText = projectUrl || '[PROJECT_LINK]';
+    
     const fallbackPosts = {
       instagram: `🚀 Excited to share my latest project: ${projectTitle}! 
 
 Built with passion and dedication, this project showcases my skills in modern web development. 
 
-✨ Check it out and let me know what you think!
+✨ Check it out: ${linkText}
+
+Let me know what you think!
 
 #WebDevelopment #Coding #ProjectShowcase #TechProject #Developer #Programming #BuildInPublic #TechCommunity`,
 
       linkedin: `I'm excited to share my latest project: ${projectTitle}
 
 This project represents my journey in learning and applying modern development practices. It's been a great learning experience, and I'm proud of what I've built.
+
+🔗 Check it out: ${linkText}
 
 I'd love to hear your thoughts and feedback!
 
@@ -131,7 +142,9 @@ I'd love to hear your thoughts and feedback!
 
 Just finished working on my new project: ${projectTitle}
 
-Really excited about how it turned out! Would love for you to check it out: [PROJECT_LINK]
+Really excited about how it turned out! Would love for you to check it out:
+
+${linkText}
 
 Let me know what you think! 🚀`
     };

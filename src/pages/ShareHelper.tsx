@@ -16,6 +16,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 export default function ShareHelper() {
   const [projectTitle, setProjectTitle] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
+  const [projectUrl, setProjectUrl] = useState('');
   const [techStack, setTechStack] = useState<string[]>([]);
   const [techInput, setTechInput] = useState('');
   const [platform, setPlatform] = useState<'instagram' | 'linkedin' | 'whatsapp'>('instagram');
@@ -57,6 +58,7 @@ export default function ShareHelper() {
         {
           projectTitle,
           projectDescription,
+          projectUrl,
           techStack,
           platform
         },
@@ -207,6 +209,19 @@ export default function ShareHelper() {
                 onChange={(e) => setProjectDescription(e.target.value)}
                 rows={4}
                 className="bg-background/50 border-2 focus:border-primary/50 transition-all resize-none"
+              />
+            </div>
+
+            {/* Project URL */}
+            <div className="space-y-2">
+              <Label htmlFor="projectUrl" className="text-sm font-medium">Project URL</Label>
+              <Input
+                id="projectUrl"
+                type="url"
+                placeholder="https://myproject.com or https://myproject.vercel.app"
+                value={projectUrl}
+                onChange={(e) => setProjectUrl(e.target.value)}
+                className="h-11 bg-background/50 border-2 focus:border-primary/50 transition-all"
               />
             </div>
 
