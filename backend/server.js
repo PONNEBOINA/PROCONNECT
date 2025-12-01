@@ -21,35 +21,64 @@ const app = express();
 // CORS configuration to allow credentials
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (like mobile apps, curl requests, or local file access)
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
       'http://localhost:5173',
       'http://localhost:8080',
       'http://localhost:8081',
-      'http://localhost:3000'
+      'http://localhost:3000',
+      'https://proconnect-eta.vercel.app' // Add your production domain here
     ];
     
     // Allow all Vercel, Netlify, and Render domains
     if (origin.includes('.vercel.app') || 
         origin.includes('.netlify.app') || 
-        origin.includes('.onrender.com') || 
+        origin.includes('.onrender.com') ||
+        origin.includes('.github.io') ||
         allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.warn('Blocked by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
-  optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  optionsSuccessStatus: 200, // Some legacy browsers (IE11, various SmartTVs) choke on 204
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 600, // How long the results of a preflight request can be cached
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 };
 
-// Middleware
+// Session configuration
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+};
+
+// Apply middleware
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Session middleware must be after CORS but before routes
+app.use((req, res, next) => {
+  // Set cache control headers for all responses
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
 
 // Serve static files for certificates
 app.use('/uploads', express.static('uploads'));
