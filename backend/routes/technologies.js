@@ -314,18 +314,50 @@ router.post('/ask', authenticateToken, async (req, res) => {
     // Use Google Gemini API (using the working key from POST-GENERATOR)
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBCaktLqFRrMIK6kLtP2HvHQ8gjMtUUYVY';
     
-    const prompt = `You are a helpful technology expert assistant. A student is learning about ${technology} and has asked: "${question}"
+    // Enhanced prompt for better responses
+    const prompt = `You are an expert technology educator and mentor specializing in ${technology}.
 
-Please provide a clear, accurate, and helpful response. If the question is a greeting (like "hi", "hello"), respond warmly and ask how you can help them learn about ${technology}. 
+CONTEXT:
+- Technology: ${technology}
+- Student Question: "${question}"
 
-Keep your response:
-- Accurate and factual
-- Easy to understand for students
-- Concise (2-3 paragraphs max)
-- Encouraging and supportive
-- Focused on ${technology} when relevant
+YOUR ROLE:
+You help students learn about ${technology} by providing clear, accurate, and practical explanations.
 
-Response:`;
+RESPONSE GUIDELINES:
+
+1. If it's a GREETING (hi, hello, hey):
+   - Respond warmly and enthusiastically
+   - Introduce yourself as their ${technology} learning assistant
+   - Ask what they'd like to learn about ${technology}
+   - Mention 2-3 key topics you can help with
+
+2. If it's a TECHNICAL QUESTION:
+   - Start with a clear, direct answer
+   - Explain the concept in simple terms
+   - Provide a practical example or use case
+   - Add a helpful tip or best practice
+   - Keep it conversational and encouraging
+
+3. If it's about LEARNING ${technology}:
+   - Provide a structured learning path
+   - Recommend specific resources
+   - Share practical project ideas
+   - Mention common pitfalls to avoid
+
+4. If it's about CAREER/USAGE:
+   - Explain real-world applications
+   - Mention companies or projects using it
+   - Discuss job opportunities
+   - Share industry trends
+
+FORMATTING:
+- Use clear paragraphs (2-4 paragraphs)
+- Be conversational but professional
+- Use examples when helpful
+- End with encouragement or next steps
+
+Now provide your response:`;
 
     console.log('Making AI request for:', technology, question);
     console.log('Using API key:', GEMINI_API_KEY ? 'Key present' : 'Key missing');
@@ -340,7 +372,13 @@ Response:`;
           parts: [{
             text: prompt
           }]
-        }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 1024,
+        }
       })
     });
 
