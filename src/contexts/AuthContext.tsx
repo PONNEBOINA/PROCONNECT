@@ -30,15 +30,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('proconnect_user');
     const token = localStorage.getItem('token');
     
     if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
-      loadUsers();
+      try {
+        setUser(JSON.parse(storedUser));
+        loadUsers();
+      } catch (error) {
+        console.error('Failed to parse stored user:', error);
+        localStorage.removeItem('proconnect_user');
+        localStorage.removeItem('token');
+      }
     }
+    setLoading(false);
   }, []);
 
   const loadUsers = async () => {
@@ -105,6 +113,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error('Failed to reload user:', error);
     }
   };
+
+  // Don't render children until we've checked localStorage
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <span className="text-white font-bold text-2xl">P</span>
+          </div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={{
