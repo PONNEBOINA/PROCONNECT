@@ -160,7 +160,7 @@ export default function Upload() {
                     type="button"
                     variant="outline"
                     className="w-full gap-2 h-11 border-2 border-primary/30 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/30"
-                    onClick={() => window.open('https://post-generator-eta-silk.vercel.app/', '_blank')}
+                    onClick={() => window.open('http://localhost:5174/', '_blank')}
                   >
                     <Share2 className="w-4 h-4" />
                     Generate Social Media Post
