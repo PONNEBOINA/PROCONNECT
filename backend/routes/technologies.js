@@ -312,7 +312,7 @@ router.post('/ask', authenticateToken, async (req, res) => {
     }
 
     // Use Google Gemini API
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyA6Y5J2OF7ZVSiXcfF9E4hwdmDEOiIPquY';
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBCaktLqFRrMIK6kLtP2HvHQ8gjMtUUYVY';
     
     // Check if question is related to the technology or is a general question
     const lowerQuestion = question.toLowerCase().trim();

@@ -7,7 +7,7 @@ const router = express.Router();
 // GET /api/social-posts/test - Test API key
 router.get('/test', async (req, res) => {
   try {
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyA6Y5J2OF7ZVSiXcfF9E4hwdmDEOiIPquY';
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBCaktLqFRrMIK6kLtP2HvHQ8gjMtUUYVY';
     
     const response = await fetch(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
@@ -50,7 +50,7 @@ router.post('/generate', authenticateToken, async (req, res) => {
       });
     }
 
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyA6Y5J2OF7ZVSiXcfF9E4hwdmDEOiIPquY';
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBCaktLqFRrMIK6kLtP2HvHQ8gjMtUUYVY';
 
     const prompt = `You are an expert social media content writer.
 Your task is to generate UNIQUE posts for each platform requested by the user.
