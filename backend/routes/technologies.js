@@ -314,8 +314,55 @@ router.post('/ask', authenticateToken, async (req, res) => {
     // Use Google Gemini API (using the working key from POST-GENERATOR)
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBCaktLqFRrMIK6kLtP2HvHQ8gjMtUUYVY';
     
-    // Enhanced prompt for better responses
-    const prompt = `You are an expert technology educator and mentor specializing in ${technology}.
+    // Check if question is related to the technology or is a general question
+    const lowerQuestion = question.toLowerCase().trim();
+    const isGeneralQuestion = 
+      lowerQuestion === 'hi' || 
+      lowerQuestion === 'hello' || 
+      lowerQuestion === 'hey' ||
+      lowerQuestion === 'how are you' ||
+      lowerQuestion === 'how are you?' ||
+      lowerQuestion === 'what\'s up' ||
+      lowerQuestion === 'whats up' ||
+      lowerQuestion === 'good morning' ||
+      lowerQuestion === 'good afternoon' ||
+      lowerQuestion === 'good evening' ||
+      lowerQuestion.startsWith('how are') ||
+      lowerQuestion.startsWith('how r u') ||
+      lowerQuestion.startsWith('sup') ||
+      (!lowerQuestion.includes(technology.toLowerCase()) && 
+       !lowerQuestion.includes('learn') && 
+       !lowerQuestion.includes('build') && 
+       !lowerQuestion.includes('what') && 
+       !lowerQuestion.includes('why') && 
+       !lowerQuestion.includes('how to') &&
+       !lowerQuestion.includes('tutorial') &&
+       !lowerQuestion.includes('course') &&
+       !lowerQuestion.includes('resource') &&
+       !lowerQuestion.includes('documentation') &&
+       !lowerQuestion.includes('example') &&
+       !lowerQuestion.includes('project') &&
+       !lowerQuestion.includes('code') &&
+       !lowerQuestion.includes('syntax') &&
+       !lowerQuestion.includes('error') &&
+       !lowerQuestion.includes('install') &&
+       !lowerQuestion.includes('setup') &&
+       lowerQuestion.length < 50);
+
+    let prompt;
+    
+    if (isGeneralQuestion) {
+      // For general questions, respond naturally without forcing technology context
+      prompt = `You are a friendly AI assistant. The user asked: "${question}"
+
+Respond naturally and conversationally to their question. If it's a greeting, greet them back warmly. If they ask how you are, respond like a helpful assistant would.
+
+After your natural response, you can briefly mention that you're here to help them learn about ${technology} if they have any questions about it.
+
+Keep your response friendly, concise (2-3 sentences), and natural.`;
+    } else {
+      // For technology-related questions, use the detailed prompt
+      prompt = `You are an expert technology educator and mentor specializing in ${technology}.
 
 CONTEXT:
 - Technology: ${technology}
@@ -326,26 +373,20 @@ You help students learn about ${technology} by providing clear, accurate, and pr
 
 RESPONSE GUIDELINES:
 
-1. If it's a GREETING (hi, hello, hey):
-   - Respond warmly and enthusiastically
-   - Introduce yourself as their ${technology} learning assistant
-   - Ask what they'd like to learn about ${technology}
-   - Mention 2-3 key topics you can help with
-
-2. If it's a TECHNICAL QUESTION:
+1. If it's a TECHNICAL QUESTION about ${technology}:
    - Start with a clear, direct answer
    - Explain the concept in simple terms
    - Provide a practical example or use case
    - Add a helpful tip or best practice
    - Keep it conversational and encouraging
 
-3. If it's about LEARNING ${technology}:
+2. If it's about LEARNING ${technology}:
    - Provide a structured learning path
    - Recommend specific resources
    - Share practical project ideas
    - Mention common pitfalls to avoid
 
-4. If it's about CAREER/USAGE:
+3. If it's about CAREER/USAGE:
    - Explain real-world applications
    - Mention companies or projects using it
    - Discuss job opportunities
@@ -358,6 +399,7 @@ FORMATTING:
 - End with encouragement or next steps
 
 Now provide your response:`;
+    }
 
     console.log('Making AI request for:', technology, question);
     console.log('Using API key:', GEMINI_API_KEY ? 'Key present' : 'Key missing');
