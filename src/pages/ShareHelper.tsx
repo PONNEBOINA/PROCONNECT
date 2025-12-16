@@ -62,14 +62,13 @@ export default function ShareHelper() {
     setPosts([]);
 
     try {
-      // Use exact same API call as POST-GENERATOR
+      // Call Gemini API with query parameter (works better for some API keys)
       const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            "X-goog-api-key": GEMINI_API_KEY
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({
             contents: [
