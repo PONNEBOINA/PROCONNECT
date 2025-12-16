@@ -63,7 +63,7 @@ Generate ONLY for the platforms selected by the user.`;
     console.log('Calling Gemini API for social posts...');
     
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: {
@@ -88,9 +88,12 @@ Generate ONLY for the platforms selected by the user.`;
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Gemini API error:', response.status, errorText);
+      console.error('Request URL:', response.url);
+      console.error('API Key (first 10 chars):', GEMINI_API_KEY.substring(0, 10));
       return res.status(response.status).json({ 
-        message: 'Failed to generate posts',
-        error: errorText 
+        message: 'Failed to generate posts from Gemini API',
+        error: errorText,
+        status: response.status
       });
     }
 
