@@ -444,9 +444,30 @@ Now provide your response:`;
     
     // Fallback response
     const { technology, question } = req.body;
-    const fallbackAnswer = `I'm here to help you learn about ${technology}! ${question.toLowerCase().includes('hi') || question.toLowerCase().includes('hello') 
-      ? `Hello! I'm your ${technology} learning assistant. Feel free to ask me anything about ${technology} - what it is, how to learn it, what you can build with it, or any specific questions you have!`
-      : `That's a great question about ${technology}! While I'm having trouble connecting to my knowledge base right now, I recommend checking the official ${technology} documentation or asking in the community forums. Is there anything specific about ${technology} you'd like to know?`}`;
+    const lowerQuestion = question.toLowerCase().trim();
+    
+    // Check if it's a general question for fallback too
+    const isGeneralFallback = 
+      lowerQuestion === 'hi' || 
+      lowerQuestion === 'hello' || 
+      lowerQuestion === 'hey' ||
+      lowerQuestion === 'how are you' ||
+      lowerQuestion === 'how are you?' ||
+      lowerQuestion.startsWith('how are') ||
+      lowerQuestion === 'what\'s up' ||
+      lowerQuestion === 'whats up';
+    
+    let fallbackAnswer;
+    
+    if (isGeneralFallback) {
+      if (lowerQuestion.includes('how are')) {
+        fallbackAnswer = `I'm doing great, thanks for asking! I'm here and ready to help you learn about ${technology}. What would you like to know?`;
+      } else {
+        fallbackAnswer = `Hello! I'm your friendly learning assistant. I'm here to help you with any questions about ${technology}. What would you like to learn today?`;
+      }
+    } else {
+      fallbackAnswer = `That's a great question about ${technology}! While I'm having trouble connecting to my knowledge base right now, I recommend checking the official ${technology} documentation or asking in the community forums. Is there anything specific about ${technology} you'd like to know?`;
+    }
     
     res.json({ answer: fallbackAnswer });
   }
