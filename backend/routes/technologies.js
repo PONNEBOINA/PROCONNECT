@@ -311,8 +311,8 @@ router.post('/ask', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Technology and question are required' });
     }
 
-    // Use Google Gemini API (using the working key from POST-GENERATOR)
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBCaktLqFRrMIK6kLtP2HvHQ8gjMtUUYVY';
+    // Use Google Gemini API
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyA6Y5J2OF7ZVSiXcfF9E4hwdmDEOiIPquY';
     
     // Check if question is related to the technology or is a general question
     const lowerQuestion = question.toLowerCase().trim();
