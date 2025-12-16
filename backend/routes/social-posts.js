@@ -4,6 +4,41 @@ import fetch from 'node-fetch';
 
 const router = express.Router();
 
+// GET /api/social-posts/test - Test API key
+router.get('/test', async (req, res) => {
+  try {
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyA6Y5J2OF7ZVSiXcfF9E4hwdmDEOiIPquY';
+    
+    const response = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-goog-api-key': GEMINI_API_KEY
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: 'Say hello in one word'
+            }]
+          }]
+        })
+      }
+    );
+
+    const data = await response.json();
+    
+    res.json({
+      status: response.status,
+      ok: response.ok,
+      data: data
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST /api/social-posts/generate - Generate social media posts
 router.post('/generate', authenticateToken, async (req, res) => {
   try {
@@ -63,11 +98,12 @@ Generate ONLY for the platforms selected by the user.`;
     console.log('Calling Gemini API for social posts...');
     
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-goog-api-key': GEMINI_API_KEY
         },
         body: JSON.stringify({
           contents: [{
