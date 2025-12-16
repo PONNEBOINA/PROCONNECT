@@ -1,17 +1,18 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '@/components/Layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Check, X } from 'lucide-react';
+import { Check, X, ArrowLeft } from 'lucide-react';
 import { useSocial } from '@/contexts/SocialContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 
 export default function Friends() {
+  const navigate = useNavigate();
   const { friendRequests, respondToFriendRequest, getFriendsList } = useSocial();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -62,7 +63,17 @@ export default function Friends() {
     <div className="min-h-screen bg-background pb-20 md:pb-8">
       <Navbar />
       <main className="max-w-2xl mx-auto px-4 pt-20">
-        <h1 className="text-2xl font-bold mb-6">Friends</h1>
+        <div className="flex items-center gap-3 mb-6">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="hover:bg-muted"
+          >
+            <ArrowLeft size={20} />
+          </Button>
+          <h1 className="text-2xl font-bold">Friends</h1>
+        </div>
 
         <Tabs defaultValue="friends" className="w-full">
           <TabsList className="grid w-full grid-cols-2">

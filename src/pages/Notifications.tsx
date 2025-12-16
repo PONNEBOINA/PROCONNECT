@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Navbar } from '@/components/Layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -6,10 +7,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useSocial } from '@/contexts/SocialContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { UserPlus, Check, Bell, X } from 'lucide-react';
+import { UserPlus, Check, Bell, X, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Notifications() {
+  const navigate = useNavigate();
   const { notifications, friendRequests, markNotificationRead, markAllNotificationsRead, respondToFriendRequest } = useSocial();
   const { user, users } = useAuth();
   const { toast } = useToast();
@@ -91,18 +93,28 @@ export default function Notifications() {
       <Navbar />
       <main className="max-w-2xl mx-auto px-4 pt-24">
         <div className="flex items-center justify-between mb-8 animate-slide-down">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Notifications
-            </h1>
-            {unreadCount > 0 && (
-              <p className="text-sm text-muted-foreground mt-1">
-                <span className="inline-flex items-center justify-center w-6 h-6 bg-gradient-to-r from-destructive to-destructive/80 text-white text-xs rounded-full font-bold mr-2 animate-bounce-in">
-                  {unreadCount}
-                </span>
-                unread notification{unreadCount > 1 ? 's' : ''}
-              </p>
-            )}
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="hover:bg-muted"
+            >
+              <ArrowLeft size={20} />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                Notifications
+              </h1>
+              {unreadCount > 0 && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  <span className="inline-flex items-center justify-center w-6 h-6 bg-gradient-to-r from-destructive to-destructive/80 text-white text-xs rounded-full font-bold mr-2 animate-bounce-in">
+                    {unreadCount}
+                  </span>
+                  unread notification{unreadCount > 1 ? 's' : ''}
+                </p>
+              )}
+            </div>
           </div>
           {unreadCount > 0 && (
             <Button
