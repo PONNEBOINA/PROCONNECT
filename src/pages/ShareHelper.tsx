@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '@/components/Layout/Navbar';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Sparkles, Loader2, Copy, Check, Instagram, Linkedin, ArrowLeft, Facebook, Twitter } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+const GEMINI_API_KEY = 'AIzaSyD6DYW5FYwuiYQc1fYFarErtfXf9lGY-xY';
 
 interface GeneratedPost {
   platform: string;
@@ -24,6 +24,20 @@ export default function ShareHelper() {
 
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Extract JSON from response (same as POST-GENERATOR)
+  const extractJSON = (text: string): GeneratedPost[] => {
+    if (!text) return [];
+    
+    text = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+    
+    try {
+      return JSON.parse(text);
+    } catch (err) {
+      console.log("JSON parse failed:", err);
+      return [];
+    }
+  };
 
   const handleGenerate = async () => {
     if (!rawText.trim()) {
@@ -48,26 +62,73 @@ export default function ShareHelper() {
     setPosts([]);
 
     try {
-      const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
-      const response = await fetch(`${API_URL}/api/social-posts/generate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          rawText,
-          platforms
-        })
-      });
+      // Use exact same API call as POST-GENERATOR
+      const response = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-goog-api-key": GEMINI_API_KEY
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: `You are an expert social media content writer.
+Your task is to generate UNIQUE posts for each platform requested by the user.
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to generate posts');
-      }
+User Input:
+${rawText}
+
+Platforms selected: ${platforms.join(", ")}
+
+Follow these STRICT platform rules:
+
+1. LinkedIn:
+   - Professional tone
+   - 5–8 lines
+   - Insightful + value-driven
+   - 2–4 hashtags at end
+
+2. Twitter:
+   - Max 280 characters
+   - Short, punchy, bold
+   - 1–2 relevant hashtags
+   - No long sentences
+
+3. Instagram:
+   - Casual, friendly, emoji-rich
+   - Short 2–3 lines caption
+   - Add 4–8 trending hashtags
+
+4. Facebook:
+   - Conversational & community-focused
+   - Easy language
+   - 2–3 emojis max
+
+RETURN STRICT JSON ONLY.
+NO markdown, NO code blocks, NO explanation.
+
+JSON FORMAT:
+[
+  { "platform":"LinkedIn", "content":"..." },
+  { "platform":"Twitter", "content":"..." }
+]
+
+Generate ONLY for the platforms selected by the user.`
+                  }
+                ]
+              }
+            ]
+          })
+        }
+      );
 
       const data = await response.json();
-      const parsed = data.posts || [];
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      const parsed = extractJSON(text);
       
       setPosts(parsed);
       
@@ -76,12 +137,18 @@ export default function ShareHelper() {
           title: 'Success!',
           description: `Generated ${parsed.length} post${parsed.length > 1 ? 's' : ''}`,
         });
+      } else {
+        toast({
+          title: 'No posts generated',
+          description: 'Please try again with different input',
+          variant: 'destructive'
+        });
       }
     } catch (error: any) {
       console.error('Generation error:', error);
       toast({
         title: 'Generation Failed',
-        description: error.message || 'Failed to generate posts. Please try again.',
+        description: 'Failed to generate posts. Please try again.',
         variant: 'destructive'
       });
     } finally {
