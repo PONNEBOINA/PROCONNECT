@@ -13,6 +13,7 @@ import contestRoutes from './routes/contest.js';
 import uploadRoutes from './routes/upload.js';
 import technologiesRoutes from './routes/technologies.js';
 import socialMediaRoutes from './routes/social-media.js';
+import socialPostsRoutes from './routes/social-posts.js';
 
 dotenv.config();
 
@@ -115,6 +116,7 @@ app.use('/api/contest', contestRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/technologies', technologiesRoutes);
 app.use('/api/social-media', socialMediaRoutes);
+app.use('/api/social-posts', socialPostsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
